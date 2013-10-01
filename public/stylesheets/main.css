@@ -1,0 +1,50 @@
+body, div, a, span {
+
+
+    padding: 0;
+    margin: 0;
+
+}
+
+#screen {
+
+    background-color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+}
+
+#screenLogger {
+
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    width: auto;
+    height: auto;
+    color: white;
+    font-size: 12px;
+    line-height: 10px;
+    font-family: helvetica;
+    z-index: 10000;
+}
+
+.object, .scene {
+
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+
+
+
+}
+
+#logger {
+
+    color: white;
+
+}

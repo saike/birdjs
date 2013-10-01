@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HEHE</title>
+    <link rel="stylesheet" href="stylesheets/main.css"/>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+
+
+</head>
+<body id="screen">
+    HEHE
+    <div id="screenLogger"></div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+            var objectList = [];
+            var playerName = Math.random()
+            var socket = io.connect('http://localhost:3000');
+            socket.on('update', function (data) {
+                objectList = data;
+                socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
+            });
+            socket.emit('new_client', playerName);
+//            socket.on('message', function(data){
+//                console.log(data.substring(0,8));
+//                if(data.event == 'update'){
+//
+//                    objectList = data.objectList;
+//
+//                }
+//
+//            });
+
+    </script>
+
+
+    </body>
+    <!--<script type="text/javascript" src="app/js/logic/controllers.js"></script>-->
+    <!--<script type="text/javascript" src="app/js/logic/sensors.js"></script>-->
+    <!--<script type="text/javascript" src="app/js/logic/actuators.js"></script>-->
+    <script type="text/javascript" src="javascripts/resources/resources.js"></script>
+    <script type="text/javascript" src="javascripts/resources/sprite.js"></script>
+    <script type="text/javascript" src="javascripts/bird.js"></script>
+    </html>
+</body>
+</html>
