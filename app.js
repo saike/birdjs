@@ -11,7 +11,10 @@ var swig = require('swig');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-
+var Object = require('./models/object');
+var Controller = require('./logic/controllers/controller');
+var Sensor = require('./logic/sensors/sensor');
+var Actuator = require('./logic/actuators/actuator');
 
 // all environments
 app.engine('html', swig.renderFile);
@@ -37,60 +40,60 @@ app.get('/users', user.list);
 
 
 //CLASS OBJECT
-function Object(name, type, position, size){
-
-    this.name = name;
-    this.type = type;
-    this.x = position[0];
-    this.y = position[1];
-    this.width = size[0];
-    this.height = size[1];
-    this.top = function(){return this.y};
-    this.bottom = function(){return (this.y + this.height)};
-    this.left = function(){return this.x};
-    this.right = function(){return (this.x + this.width)};
-    this.vx = 0;
-    this.vy = 0;
-    this.keyboardState =[];
-    this.mouseState = {x: 0, y: 0, clicked: []};
-    this.redraw = function(){
-        if(this.type != "ghost"){
-
-            if(parseInt(this.vx) > 0) {
-
-                this.vx = this.vx-gravity;
-
-            }
-            else if(parseInt(this.vx) < 0){
-
-                this.vx = this.vx+gravity;
-
-            }
-            if(this.bottom() + this.vy < currentScene.height){
-
-                this.vy = this.vy + gravity;
-
-            }
-            if(this.bottom() + this.vy > currentScene.height){
-
-                this.vy = 0;
-                this.y = currentScene.height - this.height;
-
-            }
-            if(this.keyboardState[68]){
-
-                this.vx = 5;
-
-            }
-
-        }
-
-        this.x += this.vx;
-        this.y += this.vy;
-    };
-
-
-}
+//function Object(name, type, position, size){
+//
+//    this.name = name;
+//    this.type = type;
+//    this.x = position[0];
+//    this.y = position[1];
+//    this.width = size[0];
+//    this.height = size[1];
+//    this.top = function(){return this.y};
+//    this.bottom = function(){return (this.y + this.height)};
+//    this.left = function(){return this.x};
+//    this.right = function(){return (this.x + this.width)};
+//    this.vx = 0;
+//    this.vy = 0;
+//    this.keyboardState =[];
+//    this.mouseState = {x: 0, y: 0, clicked: []};
+//    this.redraw = function(){
+//        if(this.type != "ghost"){
+//
+//            if(parseInt(this.vx) > 0) {
+//
+//                this.vx = this.vx-gravity;
+//
+//            }
+//            else if(parseInt(this.vx) < 0){
+//
+//                this.vx = this.vx+gravity;
+//
+//            }
+//            if(this.bottom() + this.vy < currentScene.height){
+//
+//                this.vy = this.vy + gravity;
+//
+//            }
+//            if(this.bottom() + this.vy > currentScene.height){
+//
+//                this.vy = 0;
+//                this.y = currentScene.height - this.height;
+//
+//            }
+//            if(this.keyboardState[68]){
+//
+//                this.vx = 5;
+//
+//            }
+//
+//        }
+//
+//        this.x += this.vx;
+//        this.y += this.vy;
+//    };
+//
+//
+//}
 
 //CLASS SCENE
 function Scene(name, width, height){
@@ -100,10 +103,12 @@ function Scene(name, width, height){
     this.width = width;
     this.height = height;
     this.objects = [];
+    this.gravity = 1;
     this.redraw = function(){
+        var scene = this;
         this.objects.forEach(function(object){
 
-            object.redraw();
+            object.redraw(scene);
 
         });
 
@@ -121,7 +126,14 @@ function Scene(name, width, height){
 function newPlayer(name){
 
     var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50])
-
+    var moveRightController = new Controller("moveRight", newPlayer);
+    var dKeySensor = new Sensor.keyboardSensor("D", 68, newPlayer);
+    moveRightController.sensors.push(dKeySensor);
+    var moveRightActu = new Actuator.positionActuator("mR", newPlayer);
+    moveRightActu.speedX = 10;
+    moveRightActu.frames = "always";
+    moveRightController.actuators.push(moveRightActu);
+    newPlayer.controllers.push(moveRightController);
 
 }
 
@@ -130,8 +142,6 @@ var initScene = new Scene("start", 800, 300);
 
 //Calculations per second
 var FPS = 60;
-var lastTime = Date.now();
-var gravity = 1;
 var currentScene;
 
 //List of clients
@@ -152,7 +162,7 @@ io.sockets.on('connection', function (socket) {
         });
         if(!newClient){
 
-            var newClient = { address: socket.id, name: data }
+            var newClient = { address: socket.id, name: data };
             clients.push(newClient);
             newPlayer(data);
 
@@ -191,7 +201,9 @@ io.sockets.on('connection', function (socket) {
 
     });
     socket.on('disconnect', function () {
-        clearInterval(tweets);
+
+
+
     });
 });
 
@@ -211,6 +223,15 @@ function getObject(name){
     return objects[0];
 }
 
+function renderObject(object){
+
+    this.x = object.x;
+    this.y = object.y;
+    this.width = object.width;
+    this.height = object.height;
+
+}
+
 function init(){
 
 //    setCamera(startCamera);
@@ -218,7 +239,14 @@ function init(){
     currentScene = initScene;
     var main_loop = setInterval(function(){
         currentScene.redraw();
-        io.sockets.emit('update', currentScene.objects);
+        var renderObjects = [];
+        currentScene.objects.forEach(function(object){
+
+            var newRenderObject = new renderObject(object);
+            renderObjects.push(newRenderObject);
+
+        });
+        io.sockets.emit('update', renderObjects);
     }, 1000/FPS);
 
 }

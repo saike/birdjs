@@ -2,8 +2,6 @@ var FPS = 60;
 
 var scale = 1;
 
-var gravity = 5;
-
 var currentFPS = 0;
 
 var currentScene = {};
@@ -105,66 +103,30 @@ function sendToLogger(name, value){
 
 }
 
-//CLASS OBJECT
-function Object(name, type, position, size){
-
-    this.name = name;
-    this.type = type;
-    this.x = position[0];
-    this.y = position[1];
-    this.width = size[0];
-    this.height = size[1];
-    this.top = function(){return this.y};
-    this.bottom = function(){return (this.y + this.height)};
-    this.left = function(){return this.x};
-    this.right = function(){return (this.x + this.width)};
-    this.vx = 0;
-    this.vy = 0;
-    this.redraw = function(dt){
-
-        if(parseInt(this.vx) > 0) {
-
-            this.vx = this.vx-gravity;
-
-        }
-        else if(parseInt(this.vx) < 0){
-
-            this.vx = this.vx+gravity;
-
-        }
-        if(this.bottom() + this.vy < currentScene.height){
-
-            this.vy = this.vy + gravity;
-
-        }
-        if(this.bottom() + this.vy > currentScene.height){
-
-            this.vy = 0;
-            this.y = currentScene.height - this.height;
-
-        }
-        if(keysPushed[68]){
-
-            this.vx = 100;
-
-        }
-
-        this.x += this.vx*dt.toFixed(2);
-        this.y += this.vy*dt.toFixed(2);
-    };
-    this.render = function(ctx){
-
-        ctx.beginPath();
-        ctx.rect(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'black';
-        ctx.stroke();
-
-    }
-
-}
+////CLASS OBJECT
+//function Object(name, type, position, size){
+//
+//    this.name = name;
+//    this.type = type;
+//    this.top = function(){return this.y};
+//    this.bottom = function(){return (this.y + this.height)};
+//    this.left = function(){return this.x};
+//    this.right = function(){return (this.x + this.width)};
+//    this.vx = 0;
+//    this.vy = 0;
+//    this.render = function(ctx){
+//
+//        ctx.beginPath();
+//        ctx.rect(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
+//        ctx.fillStyle = 'yellow';
+//        ctx.fill();
+//        ctx.lineWidth = 2;
+//        ctx.strokeStyle = 'black';
+//        ctx.stroke();
+//
+//    }
+//
+//}
 
 //CLASS SCENE
 function Scene(name, width, height){
@@ -177,11 +139,7 @@ function Scene(name, width, height){
     this.container = {};
     this.redraw = function(dt){
         var delay = dt;
-        this.objects.forEach(function(object){
 
-           object.redraw(delay);
-
-        });
 
     };
     this.render = function(){
@@ -263,7 +221,6 @@ var lastTime = Date.now();
 function main() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
-    currentScene.redraw(dt);
     currentScene.render();
     sendToLogger("DELAY: ", dt);
     lastTime = now;

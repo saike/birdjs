@@ -15,13 +15,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
             var objectList = [];
+
             var playerName = Math.random()
             var socket = io.connect('http://localhost:3000');
+            socket.emit('new_client', playerName);
+
             socket.on('update', function (data) {
                 objectList = data;
                 socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
             });
-            socket.emit('new_client', playerName);
 //            socket.on('message', function(data){
 //                console.log(data.substring(0,8));
 //                if(data.event == 'update'){
