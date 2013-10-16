@@ -4,7 +4,7 @@ var scale = 1;
 
 var currentFPS = 0;
 
-var currentScene = {};
+var currentScene = false;
 
 var requestAnimFrame = (function(){
     return window.requestAnimationFrame ||
@@ -27,19 +27,101 @@ var mouseClicked = [];
 
 var mousePos = { x: 0, y: 0};
 
+
+var objectList = [];
+
+var playerName = Math.random()
+
+
+//////////////////////////////////////////////////////
+//Viewport object
+var activeCamera = {
+    name: "",
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    container: false,
+    render: function(){
+        sendToLogger("Objects to update: ", objectList);
+
+        this.container.width = window.innerWidth;
+        var width = this.container.width;
+        var aspectRatio = this.width / this.height;
+
+        this.container.height = width / aspectRatio;
+        scale = width / this.width;
+        sendToLogger("scale: ", scale)
+        var ctx = this.container.getContext("2d");
+        ctx.clearRect(0, 0, this.container.width, this.container.height);
+        ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height);
+        var camera = this;
+        objectList.forEach(function(object){
+
+            ctx.beginPath();
+            ctx.rect((object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width * scale).toFixed(2), (object.height * scale).toFixed(2));
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+            sendToLogger("object: ", (object.x*scale).toFixed(2) + " " + (object.y*scale).toFixed(2) + " " + object.width*scale + "  " + object.height*scale);
+
+
+        });
+    }
+
+};
+//////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////
+//MAIN MULTIPLAYER LOGIC
+var socket = io.connect('http://192.168.1.72:3000');
+    function updateCamera(camera){
+
+        activeCamera.name = camera.name;
+        activeCamera.height = camera.height;
+        activeCamera.width = camera.width;
+        activeCamera.x = camera.x;
+        activeCamera.y = camera.y;
+    }
+
+    socket.emit('new_client', playerName);
+    socket.on('set_scene', function(data){
+
+        updateCamera(data.camera);
+        setCamera(data.camera);
+        console.log("new Scene apply from server: " + currentScene.name);
+
+    });
+    socket.on('update', function (data) {
+        objectList = data.objectList;
+        updateCamera(data.camera);
+        sendToLogger("camera: ", activeCamera.name + ' ' + activeCamera.x + "  " + activeCamera.y);
+        socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
+});
+//////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////
+//INPUT GRABBERS:
+
 document.onkeydown = document.onkeyup = function (e) {
-    e = e || event; // to deal with IE
+    e = e || event;
 
     keysPushed[e.keyCode] = e.type == 'keydown';
     //sendToLogger("KEYS PUSHED: ", keysPushed);
 }
 
 window.onmousemove = function (event) {
-    event = event || window.event; // IE-ism
+    event = event || window.event;
     mousePos = {
-        x: event.pageX,
-        y: event.pageY
+        x: ((event.pageX - parseInt(activeCamera.container.style.left))/scale + activeCamera.x).toFixed(2),
+        y: ((event.pageY - parseInt(activeCamera.container.style.top))/scale + activeCamera.y).toFixed(2)
     };
+    sendToLogger("mouse: ", mousePos.x + "   " + mousePos.y);
+
 };
 
 document.oncontextmenu=RightMouseDown;
@@ -63,7 +145,7 @@ document.onmouseup = function (event) {
     sendToLogger("mouse down? = ", mouseDown);
 
 };
-
+//////////////////////////////////////////////////////
 
 
 var FPSmeter = setInterval(function(){
@@ -71,10 +153,10 @@ var FPSmeter = setInterval(function(){
     currentFPS = 0;
 
 }, 1000);
+//////////////////////////////////////////////////////
 
 
-
-
+//////////////////////////////////////////////////////
 //this function sends values to log
 
 function sendToLogger(name, value){
@@ -102,7 +184,10 @@ function sendToLogger(name, value){
 
 
 }
+//////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////
 ////CLASS OBJECT
 //function Object(name, type, position, size){
 //
@@ -128,109 +213,114 @@ function sendToLogger(name, value){
 //
 //}
 
-//CLASS SCENE
-function Scene(name, width, height){
+////CLASS SCENE
+//function Scene(name, width, height){
+//
+//
+//    this.name = name;
+//    this.width = width;
+//    this.height = height;
+//    this.objects = [];
+//    this.container = {};
+//
+//    this.render = function(){
+//        sendToLogger("Objects to update: ", objectList);
+//        this.container.width = parseInt(currentScene.width * scale);
+//        this.container.height = parseInt(currentScene.height * scale);
+//        var ctx = this.container.getContext("2d");
+//        ctx.clearRect(0, 0, this.container.width, this.container.height);
+////        ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height*2);
+//
+//        objectList.forEach(function(object){
+//
+//            ctx.beginPath();
+//            ctx.rect(object.x * scale, object.y * scale, object.width * scale, object.height * scale);
+//            ctx.fillStyle = 'yellow';
+//            ctx.fill();
+//            ctx.lineWidth = 2;
+//            ctx.strokeStyle = 'black';
+//            ctx.stroke();
+//
+//
+//        });
+//
+//
+//    };
+//
+//
+//}
 
 
-    this.name = name;
-    this.width = width;
-    this.height = height;
-    this.objects = [];
-    this.container = {};
-    this.redraw = function(dt){
-        var delay = dt;
-
-
-    };
-    this.render = function(){
-        sendToLogger("Objects to update: ", objectList);
-        var ctx = this.container.getContext("2d");
-        ctx.clearRect(0, 0, this.container.width, this.container.height);
-        ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height*2);
-
-        objectList.forEach(function(object){
-
-            ctx.beginPath();
-            ctx.rect(object.x * scale, object.y * scale, object.width * scale, object.height * scale);
-            ctx.fillStyle = 'yellow';
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'black';
-            ctx.stroke();
-
-
-        });
-
-
-    };
-    this.addObject = function(name, type, position, size){
-
-        var obj = new Object(name, type, position, size);
-        this.objects.push(obj);
-        return obj;
-    };
-
-}
-
+//////////////////////////////////////////////////////
 //CLASS CAMERA
 function Camera(name, width, height){
 
    this.name = name;
    this.width = width;
    this.height = height;
-   this.position = [0,0];
-   this.setScene = function(scene){
+   this.x = 0;
+   this.y = 0;
+   this.container = {};
 
-       currentScene = scene;
-       var sceneContainer = document.createElement('canvas');
-       sceneContainer.style.top = 0;
-       sceneContainer.style.left = 0;
-       sceneContainer.style.position = "absolute";
-       sceneContainer.width = currentScene.width * scale;
-       sceneContainer.height = currentScene.height * scale;
-       sceneContainer.style.backgroundColor = "red";
-       sceneContainer.className = "scene";
-       sceneContainer.id = currentScene.name;
-       currentScene.container = sceneContainer;
-       this.container.appendChild(sceneContainer);
-       console.log("Set current scene: " + currentScene.name);
-
-   }
 }
 
 //SET CAMERA TO RENDER
 
 function setCamera(camera){
+    activeCamera.width = camera.width;
+    activeCamera.height = camera.height;
+    activeCamera.name = camera.name;
+    activeCamera.x = camera.x;
+    activeCamera.y = camera.y;
+    if(activeCamera.container){
 
-    var cameraContainer = document.createElement('div');
+        screen.removeChild(activeCamera.container);
+        activeCamera.container = false;
+
+
+    }
+    var cameraContainer = document.createElement('canvas');
     cameraContainer.id = camera.name;
-    cameraContainer.style.width = window.innerWidth + "px";
+    cameraContainer.style.width = window.innerWidth;
     var aspectRatio = camera.width/camera.height;
     var width = cameraContainer.style.width.split("px");
-    cameraContainer.style.height = (parseInt(width) / aspectRatio) + "px";
+    cameraContainer.style.height = (parseInt(width) / aspectRatio);
     scale = parseInt(width)/camera.width;
-    console.log(width + ' ' + " " + aspectRatio);
+    console.log(width + 'suka ' + " " + aspectRatio);
     cameraContainer.style.position = "absolute";
-    cameraContainer.style.overflow = "hidden";
+    cameraContainer.style.top = "0px";
+    cameraContainer.style.left = "0px";
+
     camera.container = cameraContainer;
+    activeCamera.container = cameraContainer;
     screen.appendChild(cameraContainer);
 }
+//////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////
+//Main loop
 var lastTime = Date.now();
 
 function main() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
-    currentScene.render();
+    activeCamera.render();
+//    currentScene.render();
     sendToLogger("DELAY: ", dt);
     lastTime = now;
     currentFPS++;
 
     requestAnimFrame(main);
-};
-var initScene = new Scene("start", 800, 300);
+}
+//////////////////////////////////////////////////////
+
+//var initScene = new Scene("start", 800, 300);
 var startCamera = new Camera("initCamera", 800, 300);
 
+
+
+//Load resources
 resources.load([
     'images/basicAnim.png',
     'images/box_d.jpg',
@@ -239,17 +329,21 @@ resources.load([
     'images/look_from_another_planet_by_johndoop-d5ezloz.jpg',
     'images/Wood_Box_Texture.jpg'
 ]);
-resources.onReady(init);
 
+
+
+
+//START APP CONFIG
 function init(){
 
     setCamera(startCamera);
-    startCamera.setScene(initScene);
-    var saike = initScene.addObject("saike", "player", [40,40],[50,50]);
-
+//    activeCamera.setScene(initScene);
     main();
 
 }
+
+//START APP ON LOADED RESOURCES
+resources.onReady(init);
 
 
 
