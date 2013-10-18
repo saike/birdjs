@@ -1,5 +1,9 @@
+var bge = require('../bge');
+
+
 //BASIC POSITION ACTUATOR
 exports.positionActuator = function (actuName, obj) {
+
         this.name = actuName;
         this.speedX = 0;
         this.speedY = 0;
@@ -64,8 +68,44 @@ exports.followActuator = function(actuName, obj, target, distanceX, distanceY){
 
 }
 
-exports.animationActuator = function(actuName, obj, sprite, type){
+exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX, framesY){
+    bge.animationActuators.push(this);
+    this.name = actuName;
+    this.sprite = sprite;
+    this.owner = obj;
+    this.type = type;
+    this.speed = speed;
+    this.framesX = framesX;
+    this.framesY = framesY;
+    this.currentFrameX = 0;
+    this.currentFrameY = 0;
+    this.currentFrame = [0,0];
+
+    this.activate = function(){
+        var actu = this;
+        var spriteWidth = actu.owner.width*framesX;
+        var spriteHeight = actu.owner.height*framesY;
+        actu.currentFrame[0] = actu.owner.width*actu.currentFrameX;
+        actu.currentFrame[1] = actu.owner.height*actu.currentFrameY;
+        actu.owner.animations.push({sprite: actu.sprite, left: actu.currentFrame[0], top: actu.currentFrame[1], framesX: actu.framesX, framesY: actu.framesY});
+
+        if(actu.type == "loop"){
+            actu.currentFrameX++;
+            if(actu.currentFrameX >= actu.framesX){
+
+                actu.currentFrameX = 0;
+                actu.currentFrameY++;
+            }
+            if(actu.currentFrameY >= actu.framesY){
+
+                actu.currentFrameY = 0;
+
+            }
 
 
+        }
+
+
+    }
 
 }

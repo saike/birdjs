@@ -154,6 +154,15 @@ var Scene = module.exports = function(name, width, height){
     this.height = height;
     this.objects = [];
     this.gravity = 1;
+    this.resetAnimations = function(){
+
+        this.objects.forEach(function(object){
+
+            object.animations = [];
+
+        });
+
+    };
     this.getCollisions = function(){
         var scene = this;
         var collisions = [];

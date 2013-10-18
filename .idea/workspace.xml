@@ -2,27 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1877c509-fa48-40a2-a380-d9f332c80f10" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/models/scene.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/logic/bge.js" />
       <change type="MOVED" beforePath="$PROJECT_DIR$/models/Object.js" afterPath="$PROJECT_DIR$/models/object.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logic/actuators/actuator.js" afterPath="$PROJECT_DIR$/logic/actuators/actuator.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/bird.js" afterPath="$PROJECT_DIR$/public/javascripts/bird.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/index.html" afterPath="$PROJECT_DIR$/views/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/main.css" afterPath="$PROJECT_DIR$/public/stylesheets/main.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/scene.js" afterPath="$PROJECT_DIR$/models/scene.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="birdjs.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381867065379" ignored="false" />
-    <file path="/object.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381921466430" ignored="false" />
-    <file path="/app.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381907311886" ignored="false" />
+    <file path="/Dummy.txt" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382017355774" ignored="false" />
+    <file path="/object.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382017770171" ignored="false" />
+    <file path="/app.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382018597504" ignored="false" />
     <file path="/controller.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1380631148296" ignored="false" />
     <file path="/sensor.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1380631746271" ignored="false" />
     <file path="/index.html" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381401292431" ignored="false" />
-    <file path="/actuator.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381921537102" ignored="false" />
-    <file path="/bird.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381907194009" ignored="false" />
+    <file path="/actuator.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382099681120" ignored="false" />
+    <file path="/bird.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382023064547" ignored="false" />
     <file path="$PROJECT_DIR$/../bird_old/app/js/main.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1380817429147" ignored="false" />
-    <file path="/scene.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381917869754" ignored="false" />
+    <file path="/scene.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381924493461" ignored="false" />
     <file path="/main.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1380817372549" ignored="false" />
     <file path="$PROJECT_DIR$/../HCPaint/index.html" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381401700508" ignored="false" />
     <file path="$PROJECT_DIR$/../HCPaint/css/style.css" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381770801729" ignored="false" />
@@ -32,6 +32,7 @@
     <file path="$PROJECT_DIR$/../HCPaint/json/levels.json" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381768077999" ignored="false" />
     <file path="/levels.json" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381762370485" ignored="false" />
     <file path="/dummy.xml" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1381791667906" ignored="false" />
+    <file path="/bge.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1382101316616" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,10 +52,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="app.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="app.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="309" column="81" selection-start="7973" selection-end="7973" vertical-scroll-proportion="0.56058586">
+            <state line="106" column="0" selection-start="2512" selection-end="2512" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bge.js" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/logic/bge.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="2" column="21" selection-start="55" selection-end="55" vertical-scroll-proportion="0.03994674">
               <folding />
             </state>
           </provider>
@@ -63,7 +73,7 @@
       <file leaf-file-name="scene.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/scene.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="0" selection-start="3135" selection-end="3135" vertical-scroll-proportion="0.0">
+            <state line="1" column="0" selection-start="10" selection-end="43" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -72,7 +82,23 @@
       <file leaf-file-name="actuator.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/logic/actuators/actuator.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="59" selection-start="1828" selection-end="1828" vertical-scroll-proportion="0.0">
+            <state line="0" column="21" selection-start="21" selection-end="21" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="basicAnim.png" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/images/basicAnim.png">
+          <provider selected="true" editor-type-id="images">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bird.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/javascripts/bird.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="146" column="28" selection-start="3850" selection-end="3857" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -87,22 +113,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="bird.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/public/javascripts/bird.js">
+      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/views/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="311" column="14" selection-start="8748" selection-end="8748" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#5247#5301#0" expanded="false" />
-                <element signature="e#5993#6008#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="object.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/object.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="94" column="24" selection-start="2396" selection-end="2396" vertical-scroll-proportion="0.0">
+            <state line="34" column="0" selection-start="875" selection-end="875" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -139,13 +153,15 @@
         <option value="$PROJECT_DIR$/controllers/controller.js" />
         <option value="$PROJECT_DIR$/logic/sensors/sensor.js" />
         <option value="$PROJECT_DIR$/logic/controllers/controller.js" />
-        <option value="$PROJECT_DIR$/views/index.html" />
         <option value="$PROJECT_DIR$/public/stylesheets/main.css" />
-        <option value="$PROJECT_DIR$/public/javascripts/bird.js" />
         <option value="$PROJECT_DIR$/models/scene.js" />
+        <option value="$PROJECT_DIR$/views/index.html" />
+        <option value="$PROJECT_DIR$/logic/bird.js" />
         <option value="$PROJECT_DIR$/models/object.js" />
+        <option value="$PROJECT_DIR$/public/javascripts/bird.js" />
         <option value="$PROJECT_DIR$/logic/actuators/actuator.js" />
         <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/logic/bge.js" />
       </list>
     </option>
   </component>
@@ -180,7 +196,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -263,6 +278,28 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="javascripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="birdjs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="birdjs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="images" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -278,6 +315,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="models" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="birdjs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="birdjs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="logic" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -337,6 +388,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -486,30 +538,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/views/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="345" selection-end="345" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="53" selection-start="431" selection-end="431" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/javascripts/bird.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="222" column="28" selection-start="5654" selection-end="5654" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#5247#5301#0" expanded="false" />
-            <element signature="e#5993#6008#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/object.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="26" selection-start="560" selection-end="560" vertical-scroll-proportion="0.0">
@@ -531,32 +559,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/logic/controllers/controller.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="10" selection-start="596" selection-end="596" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/views/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="345" selection-end="345" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/stylesheets/main.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="0" selection-start="396" selection-end="396" vertical-scroll-proportion="0.6391478">
-          <folding />
-        </state>
+        <state line="32" column="0" selection-start="396" selection-end="396" vertical-scroll-proportion="0.6391478" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/stylesheets/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/images/basicAnim.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/logic/sensors/sensor.js">
@@ -566,40 +581,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/javascripts/bird.js">
+    <entry file="file://$PROJECT_DIR$/views/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="311" column="14" selection-start="8748" selection-end="8748" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#5247#5301#0" expanded="false" />
-            <element signature="e#5993#6008#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/scene.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="0" selection-start="3135" selection-end="3135" vertical-scroll-proportion="0.0">
+        <state line="34" column="0" selection-start="875" selection-end="875" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/logic/actuators/actuator.js">
+    <entry file="file://$PROJECT_DIR$/logic/controllers/controller.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="59" selection-start="1828" selection-end="1828" vertical-scroll-proportion="0.0">
+        <state line="30" column="10" selection-start="596" selection-end="596" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/object.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="94" column="24" selection-start="2396" selection-end="2396" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/resources/resources.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/bird.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="146" column="28" selection-start="3850" selection-end="3857" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/scene.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="0" selection-start="10" selection-end="43" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/logic/actuators/actuator.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="21" selection-start="21" selection-end="21" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="309" column="81" selection-start="7973" selection-end="7973" vertical-scroll-proportion="0.56058586">
+        <state line="106" column="0" selection-start="2512" selection-end="2512" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/logic/bge.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2" column="21" selection-start="55" selection-end="55" vertical-scroll-proportion="0.03994674">
           <folding />
         </state>
       </provider>

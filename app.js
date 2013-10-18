@@ -11,6 +11,9 @@ var swig = require('swig');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+
+var bge = require('./logic/bge');
+
 var Object = require('./models/object');
 
 var Controller = require('./logic/controllers/controller');
@@ -98,6 +101,10 @@ function newPlayer(name){
     var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50])
     var moveRightController = new Controller("moveRight", newPlayer);
     var moveLeftController = new Controller("moveLeft", newPlayer);
+    var basicAnimationController = new Controller("animation", newPlayer);
+
+    var animActu = new Actuator.animationActuator("basic", newPlayer, "images/basicAnim.png", "loop", 1, 4, 2);
+    basicAnimationController.actuators.push(animActu);
 
     var aKeySensor = new Sensor.keyboardSensor("A", 65, newPlayer);
     moveLeftController.sensors.push(aKeySensor);
@@ -132,6 +139,7 @@ function newPlayer(name){
     newPlayer.controllers.push(moveRightController);
     newPlayer.controllers.push(jumpController);
     newPlayer.controllers.push(moveLeftController);
+    newPlayer.controllers.push(basicAnimationController);
 }
 
 io.sockets.on('connection', function (socket) {
@@ -153,6 +161,20 @@ io.sockets.on('connection', function (socket) {
             var newCamera = initCamera(data, getObject(data));
             var newClient = { address: socket.id, name: data , activeCamera: newCamera};
             clients.push(newClient);
+            var animations = [];
+            bge.animationActuators.forEach(function(animation){
+
+                 animations.push({
+
+                     sprite: animation.sprite,
+                     objWidth: animation.owner.width,
+                     objHeight: animation.owner.height,
+                     framesX: animation.framesX,
+                     framesY: animation.framesY
+
+                 });
+
+            });
 
             if(currentScene && newClient.activeCamera){
                   var renderScene = {name: currentScene.name, width: currentScene.width, height: currentScene.height};
@@ -165,7 +187,8 @@ io.sockets.on('connection', function (socket) {
                         y: newClient.activeCamera.y
 
                     };
-                  socket.emit('set_scene', {camera: updateCamera, scene: renderScene});
+
+                  socket.emit('set_scene', {camera: updateCamera, scene: renderScene, animations: animations});
 
             }
 
@@ -297,6 +320,7 @@ function renderObject(object, camera){
     this.y = (object.y - camera.y).toFixed(2);
     this.width = object.width;
     this.height = object.height;
+    this.animations = object.animations;
 
 }
 
@@ -325,7 +349,7 @@ function init(){
         });
 
         updateClients();
-
+        currentScene.resetAnimations();
         setTimeout(main_loop, 1000/FPS);
     };
     main_loop();

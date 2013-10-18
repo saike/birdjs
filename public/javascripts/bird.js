@@ -30,7 +30,24 @@ var mousePos = { x: 0, y: 0};
 
 var objectList = [];
 
-var playerName = Math.random()
+var playerName = Math.random();
+
+var Animations = {
+
+    animations: [],
+    scale: 0,
+    sprites: [],
+    update: function(){
+
+        this.animations.forEach(function(animation){
+
+
+
+        });
+
+    }
+
+}
 
 
 //////////////////////////////////////////////////////
@@ -57,7 +74,6 @@ var activeCamera = {
         ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height);
         var camera = this;
         objectList.forEach(function(object){
-
             ctx.beginPath();
             ctx.rect((object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width * scale).toFixed(2), (object.height * scale).toFixed(2));
             ctx.fillStyle = 'yellow';
@@ -65,7 +81,35 @@ var activeCamera = {
             ctx.lineWidth = 2;
             ctx.strokeStyle = 'black';
             ctx.stroke();
-            sendToLogger("object: ", (object.x*scale).toFixed(2) + " " + (object.y*scale).toFixed(2) + " " + object.width*scale + "  " + object.height*scale);
+
+            if(object.animations.length > 0){
+
+                object.animations.forEach(function(animation){
+                    var currentSprite = false;
+                    Animations.sprites.forEach(function(sprite){
+
+                        if(sprite.id == animation.sprite){
+
+                            currentSprite = sprite;
+
+                        }
+
+                    });
+
+//                    sendToLogger("animation: ", Animations.animations);
+
+                    if(currentSprite){
+
+                        ctx.drawImage(currentSprite, animation.left*scale, animation.top*scale, object.width*scale, object.height*scale, (object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width*scale).toFixed(2), (object.height*scale).toFixed(2) );
+
+                    }
+
+                });
+
+            }
+
+
+            sendToLogger("object: ", (object.x*scale).toFixed(2) + " " + (object.y*scale).toFixed(2) + " " + (object.width*scale).toFixed(2) + "  " + (object.height*scale).toFixed(2));
 
 
         });
@@ -77,7 +121,9 @@ var activeCamera = {
 
 //////////////////////////////////////////////////////
 //MAIN MULTIPLAYER LOGIC
-var socket = io.connect('http://192.168.1.72:3000');
+function connect(){
+
+    var socket = io.connect('http://192.168.1.72:3000');
     function updateCamera(camera){
 
         activeCamera.name = camera.name;
@@ -90,9 +136,35 @@ var socket = io.connect('http://192.168.1.72:3000');
     socket.emit('new_client', playerName);
     socket.on('set_scene', function(data){
 
-        updateCamera(data.camera);
         setCamera(data.camera);
-        console.log("new Scene apply from server: " + currentScene.name);
+
+        updateCamera(data.camera);
+        data.animations.forEach(function(animation){
+            Animations.animations.push(animation);
+            Animations.scale = scale;
+
+
+                image = new Image();
+                image.src = animation.sprite;
+                image.id = animation.sprite;
+                image.onload = function(){
+
+                    var c = document.createElement("canvas");
+                    c.width = animation.objWidth * animation.framesX * scale;
+                    c.height = animation.objHeight * animation.framesY * scale;
+                    c.className = "animation";
+                    c.getContext("2d").drawImage(image, 0,0, c.width, c.height);
+                    image.src = c.toDataURL();
+                    Animations.sprites.push(image);
+
+                    c = null;
+
+                }
+
+
+
+        });
+        console.log("new Scene apply from server: " + currentScene.name + "  " + Animations.animations);
 
     });
     socket.on('update', function (data) {
@@ -100,7 +172,10 @@ var socket = io.connect('http://192.168.1.72:3000');
         updateCamera(data.camera);
         sendToLogger("camera: ", activeCamera.name + ' ' + activeCamera.x + "  " + activeCamera.y);
         socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
-});
+    });
+
+
+}
 //////////////////////////////////////////////////////
 
 
@@ -117,8 +192,8 @@ document.onkeydown = document.onkeyup = function (e) {
 window.onmousemove = function (event) {
     event = event || window.event;
     mousePos = {
-        x: ((event.pageX - parseInt(activeCamera.container.style.left))/scale + activeCamera.x).toFixed(2),
-        y: ((event.pageY - parseInt(activeCamera.container.style.top))/scale + activeCamera.y).toFixed(2)
+        x: ((event.pageX - parseInt(activeCamera.container.style.left))/scale + parseInt(activeCamera.x)).toFixed(2),
+        y: ((event.pageY - parseInt(activeCamera.container.style.top))/scale + parseInt(activeCamera.y)).toFixed(2)
     };
     sendToLogger("mouse: ", mousePos.x + "   " + mousePos.y);
 
@@ -335,8 +410,9 @@ resources.load([
 
 //START APP CONFIG
 function init(){
-
     setCamera(startCamera);
+    connect();
+
 //    activeCamera.setScene(initScene);
     main();
 

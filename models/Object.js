@@ -16,6 +16,7 @@ var Object = module.exports = function(name, type, position, size){
     this.vy = 0;
     this.g = 0;
     this.keyboardState = [];
+    this.animations = [];
     this.mouseState = {x: 0, y: 0, clicked: []};
     this.controllers = [];
     this.distanceTo = function(object){
