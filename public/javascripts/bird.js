@@ -38,16 +38,33 @@ var Animations = {
     scale: 0,
     sprites: [],
     update: function(){
-
+        var anims = this;
+        this.sprites = [];
         this.animations.forEach(function(animation){
+            anims.scale = scale;
 
+            image = new Image();
+            image.id = animation.sprite;
+            anims.sprites.push(image);
 
+            image.onload = function(){
+                this.onload = null;
+                var c = document.createElement("canvas");
+                c.width = animation.objWidth * animation.framesX * scale;
+                c.height = animation.objHeight * animation.framesY * scale;
+                c.className = "animation";
+                c.getContext("2d").drawImage(this, 0,0, c.width, c.height);
+                this.src = c.toDataURL();
+                c = null;
+
+            }
+            image.src = animation.sprite;
 
         });
 
     }
 
-}
+};
 
 
 //////////////////////////////////////////////////////
@@ -60,6 +77,11 @@ var activeCamera = {
     y: 0,
     container: false,
     render: function(){
+        if(Animations.scale != scale){
+
+            Animations.update();
+
+        }
         sendToLogger("Objects to update: ", objectList);
 
         this.container.width = window.innerWidth;
@@ -72,15 +94,14 @@ var activeCamera = {
         var ctx = this.container.getContext("2d");
         ctx.clearRect(0, 0, this.container.width, this.container.height);
         ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height);
-        var camera = this;
-        objectList.forEach(function(object){
-            ctx.beginPath();
-            ctx.rect((object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width * scale).toFixed(2), (object.height * scale).toFixed(2));
-            ctx.fillStyle = 'yellow';
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'black';
-            ctx.stroke();
+        var updateObjects = objectList.sort(function(a,b){
+
+            return  a.layer - b.layer;
+
+        });
+
+        updateObjects.forEach(function(object){
+
 
             if(object.animations.length > 0){
 
@@ -96,7 +117,7 @@ var activeCamera = {
 
                     });
 
-//                    sendToLogger("animation: ", Animations.animations);
+                    sendToLogger("animation: ", Animations.animations + " sprites: " + Animations.sprites);
 
                     if(currentSprite){
 
@@ -105,6 +126,17 @@ var activeCamera = {
                     }
 
                 });
+
+            }
+            else {
+
+                ctx.beginPath();
+                ctx.rect((object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width * scale).toFixed(2), (object.height * scale).toFixed(2));
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
 
             }
 
@@ -136,30 +168,32 @@ function connect(){
     socket.emit('new_client', playerName);
     socket.on('set_scene', function(data){
 
+        Animations.sprites = [];
+        Animations.animations = [];
         setCamera(data.camera);
 
         updateCamera(data.camera);
         data.animations.forEach(function(animation){
-            Animations.animations.push(animation);
             Animations.scale = scale;
+            Animations.animations.push(animation);
 
+            image = new Image();
+            image.id = animation.sprite;
+            Animations.sprites.push(image);
 
-                image = new Image();
-                image.src = animation.sprite;
-                image.id = animation.sprite;
-                image.onload = function(){
+            image.onload = function(){
+                this.onload = null;
+                var c = document.createElement("canvas");
+                c.width = animation.objWidth * animation.framesX * scale;
+                c.height = animation.objHeight * animation.framesY * scale;
+                c.className = "animation";
+                c.getContext("2d").drawImage(this, 0,0, c.width, c.height);
+                this.src = c.toDataURL();
+                console.log("feck?");
+                c = null;
 
-                    var c = document.createElement("canvas");
-                    c.width = animation.objWidth * animation.framesX * scale;
-                    c.height = animation.objHeight * animation.framesY * scale;
-                    c.className = "animation";
-                    c.getContext("2d").drawImage(image, 0,0, c.width, c.height);
-                    image.src = c.toDataURL();
-                    Animations.sprites.push(image);
-
-                    c = null;
-
-                }
+            }
+            image.src = animation.sprite;
 
 
 

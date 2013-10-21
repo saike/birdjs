@@ -98,7 +98,7 @@ function initCamera(name, obj){
 //CREATE NEW PLAYER
 function newPlayer(name){
 
-    var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50])
+    var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50], 2)
     var moveRightController = new Controller("moveRight", newPlayer);
     var moveLeftController = new Controller("moveLeft", newPlayer);
     var basicAnimationController = new Controller("animation", newPlayer);
@@ -321,7 +321,7 @@ function renderObject(object, camera){
     this.width = object.width;
     this.height = object.height;
     this.animations = object.animations;
-
+    this.layer = object.layer;
 }
 
 //APP START FUNCTION
@@ -329,12 +329,12 @@ function init(){
     var initScene = new Scene("start", 800, 300);
     initScene.gravity = 0.5;
     currentScene = initScene;
-    var floor = currentScene.addObject("floor", "static", [0,initScene.height-5], [initScene.width, 100]);
-    var leftWall = currentScene.addObject("leftWall", "static", [-100,0], [100, initScene.height + 100]);
-    var leftWall = currentScene.addObject("rightWall", "static", [initScene.width,0], [100, initScene.height + 100]);
+    var floor = currentScene.addObject("floor", "static", [0,initScene.height-5], [initScene.width, 100], "all");
+    var leftWall = currentScene.addObject("leftWall", "static", [-100,0], [100, initScene.height + 100], "all");
+    var leftWall = currentScene.addObject("rightWall", "static", [initScene.width,0], [100, initScene.height + 100], "all");
 
-    var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70]);
-    var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100]);
+    var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70], 2);
+    var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100], 1);
     function main_loop(){
         currentScene.redraw();
 

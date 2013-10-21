@@ -1,4 +1,4 @@
-var Object = module.exports = function(name, type, position, size){
+var Object = module.exports = function(name, type, position, size, layer){
 
     this.name = name;
     this.type = type;
@@ -8,6 +8,7 @@ var Object = module.exports = function(name, type, position, size){
     this.forceY = 0;
     this.width = size[0];
     this.height = size[1];
+    this.layer = layer;
     this.top = function(){return this.y};
     this.bottom = function(){return (this.y + this.height)};
     this.left = function(){return this.x};
