@@ -27,38 +27,46 @@ var mouseClicked = [];
 
 var mousePos = { x: 0, y: 0};
 
+var touchState = false;
 
 var objectList = [];
+
+var uiList = false;
 
 var playerName = Math.random();
 
 var Animations = {
 
     animations: [],
-    scale: 0,
+    scale: 1,
     sprites: [],
     update: function(){
         var anims = this;
         this.sprites = [];
         this.animations.forEach(function(animation){
             anims.scale = scale;
-
-            image = new Image();
-            image.id = animation.sprite;
-            anims.sprites.push(image);
-
-            image.onload = function(){
-                this.onload = null;
+            var resImage = resources.get(animation.sprite);
+            if(resImage){
+                console.log("update animation");
                 var c = document.createElement("canvas");
                 c.width = animation.objWidth * animation.framesX * scale;
                 c.height = animation.objHeight * animation.framesY * scale;
                 c.className = "animation";
-                c.getContext("2d").drawImage(this, 0,0, c.width, c.height);
-                this.src = c.toDataURL();
-                c = null;
+                c.getContext("2d").drawImage(resImage, 0,0, c.width, c.height);
 
+                image = new Image();
+                image.id = animation.sprite;
+                image.src = c.toDataURL("image/png");
+
+                c = null;
+                image.onload = function(){
+                    image.onload = null;
+                    anims.sprites.push(image);
+
+
+                }
             }
-            image.src = animation.sprite;
+
 
         });
 
@@ -77,31 +85,42 @@ var activeCamera = {
     y: 0,
     container: false,
     render: function(){
-        if(Animations.scale != scale){
 
-            Animations.update();
 
-        }
+
+
         sendToLogger("Objects to update: ", objectList);
 
         this.container.width = window.innerWidth;
-        var width = this.container.width;
+        var width = parseInt(this.container.width);
         var aspectRatio = this.width / this.height;
 
         this.container.height = width / aspectRatio;
         scale = width / this.width;
-        sendToLogger("scale: ", scale)
+        if(Animations.scale != scale){
+            console.log(Animations.scale + " scale " + scale);
+            Animations.update();
+
+        }
         var ctx = this.container.getContext("2d");
         ctx.clearRect(0, 0, this.container.width, this.container.height);
+        ctx.save();
         ctx.drawImage(resources.get('images/look_from_another_planet_by_johndoop-d5ezloz.jpg'), 0, 0, this.container.width, this.container.height);
         var updateObjects = objectList.sort(function(a,b){
+            if(typeof a.layer == "number"){
 
-            return  a.layer - b.layer;
+                return  a.layer - b.layer;
 
+            }
+            else {
+
+                return 1;
+
+            }
         });
 
-        updateObjects.forEach(function(object){
-
+        var updateObjectsLog = "";
+        function renderObject(object){
 
             if(object.animations.length > 0){
 
@@ -112,7 +131,7 @@ var activeCamera = {
                         if(sprite.id == animation.sprite){
 
                             currentSprite = sprite;
-
+                            return false;
                         }
 
                     });
@@ -121,12 +140,18 @@ var activeCamera = {
 
                     if(currentSprite){
 
-                        ctx.drawImage(currentSprite, animation.left*scale, animation.top*scale, object.width*scale, object.height*scale, (object.x*scale).toFixed(2), (object.y*scale).toFixed(2), (object.width*scale).toFixed(2), (object.height*scale).toFixed(2) );
+                        ctx.drawImage(currentSprite, animation.left*scale, parseFloat(animation.top*scale), parseFloat(object.width*scale), parseFloat(object.height*scale), parseFloat(object.x*scale).toFixed(2), parseFloat(object.y*scale).toFixed(2), parseFloat(object.width*scale).toFixed(2), parseFloat(object.height*scale).toFixed(2) );
 
                     }
 
                 });
 
+            }
+            else if(object.text){
+
+                ctx.fillStyle="white";
+                ctx.font = (object.height*scale).toFixed(2) + "pt Arial";
+                ctx.fillText(object.text,(object.x*scale).toFixed(2),parseFloat((object.y + object.height)*scale).toFixed(2));
             }
             else {
 
@@ -140,11 +165,38 @@ var activeCamera = {
 
             }
 
-
+            updateObjectsLog+=object.layer;
             sendToLogger("object: ", (object.x*scale).toFixed(2) + " " + (object.y*scale).toFixed(2) + " " + (object.width*scale).toFixed(2) + "  " + (object.height*scale).toFixed(2));
 
+        }
+        updateObjects.forEach(function(object){
+
+            renderObject(object);
 
         });
+        if(uiList){
+
+            var updateUI = uiList.sort(function(a,b){
+                if(typeof a.layer == "number"){
+
+                    return  a.layer - b.layer;
+
+                }
+                else {
+
+                    return 1;
+
+                }
+            });
+            updateUI.forEach(function(object){
+
+                renderObject(object);
+
+            });
+
+        }
+        ctx.restore();
+        sendToLogger("updateObjects : ", updateObjectsLog);
     }
 
 };
@@ -173,29 +225,26 @@ function connect(){
         setCamera(data.camera);
 
         updateCamera(data.camera);
-        data.animations.forEach(function(animation){
-            Animations.scale = scale;
-            Animations.animations.push(animation);
+        Animations.scale = scale;
 
+        data.animations.forEach(function(animation){
+            Animations.animations.push(animation);
+            var resImage = resources.get(animation.sprite);
+            var c = document.createElement("canvas");
+            c.width = animation.objWidth * animation.framesX * scale;
+            c.height = animation.objHeight * animation.framesY * scale;
+            c.className = "animation";
+            c.getContext("2d").drawImage(resImage, 0,0, c.width, c.height);
+            console.log("new animation");
             image = new Image();
             image.id = animation.sprite;
-            Animations.sprites.push(image);
-
+            image.src = c.toDataURL("image/png");
+            c = null;
             image.onload = function(){
-                this.onload = null;
-                var c = document.createElement("canvas");
-                c.width = animation.objWidth * animation.framesX * scale;
-                c.height = animation.objHeight * animation.framesY * scale;
-                c.className = "animation";
-                c.getContext("2d").drawImage(this, 0,0, c.width, c.height);
-                this.src = c.toDataURL();
-                console.log("feck?");
-                c = null;
+                image.onload = null;
+                Animations.sprites.push(image);
 
             }
-            image.src = animation.sprite;
-
-
 
         });
         console.log("new Scene apply from server: " + currentScene.name + "  " + Animations.animations);
@@ -203,9 +252,19 @@ function connect(){
     });
     socket.on('update', function (data) {
         objectList = data.objectList;
+        uiList = data.uiList;
         updateCamera(data.camera);
         sendToLogger("camera: ", activeCamera.name + ' ' + activeCamera.x + "  " + activeCamera.y);
-        socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
+        if(touchState){
+
+            socket.emit('client_event', { name: playerName, touches: touchState });
+
+        }
+        else {
+
+            socket.emit('client_event', { name: playerName, mouse: mouseClicked, mouse_pos: mousePos, keyboard: keysPushed });
+
+        }
     });
 
 
@@ -225,10 +284,15 @@ document.onkeydown = document.onkeyup = function (e) {
 
 window.onmousemove = function (event) {
     event = event || window.event;
-    mousePos = {
-        x: ((event.pageX - parseInt(activeCamera.container.style.left))/scale + parseInt(activeCamera.x)).toFixed(2),
-        y: ((event.pageY - parseInt(activeCamera.container.style.top))/scale + parseInt(activeCamera.y)).toFixed(2)
-    };
+    if(activeCamera.container){
+
+        mousePos = {
+            x: ((event.pageX - parseInt(activeCamera.container.style.left))/scale).toFixed(2),
+            y: ((event.pageY - parseInt(activeCamera.container.style.top))/scale).toFixed(2)
+        };
+
+    }
+
     sendToLogger("mouse: ", mousePos.x + "   " + mousePos.y);
 
 };
@@ -402,7 +466,66 @@ function setCamera(camera){
 
     camera.container = cameraContainer;
     activeCamera.container = cameraContainer;
+    function copyTouch(touch) {
+        return { identifier: touch.identifier, x: ((touch.pageX - parseInt(activeCamera.container.style.left))/scale).toFixed(2), y: ((touch.pageY - parseInt(activeCamera.container.style.top))/scale).toFixed(2) };
+    }
+    function ongoingTouchIndexById(idToFind) {
+        for (var i=0; i < touchState.length; i++) {
+            var id = touchState[i].identifier;
+
+            if (id == idToFind) {
+                return i;
+            }
+        }
+        return -1;    // not found
+    }
+    var getTouches = function(evt){
+        evt.preventDefault();
+        if(touchState == false){
+
+            touchState = [];
+
+        }
+        var touches = evt.changedTouches;
+
+        for (var i=0; i < touches.length; i++) {
+            touchState.push(copyTouch(touches[i]));
+        }
+        sendToLogger("touchState: ", touchState);
+    }
+    var removeTouch = function(evt){
+        evt.preventDefault();
+        var touches = evt.changedTouches;
+        for (var i=0; i < touches.length; i++) {
+            var idx = ongoingTouchIndexById(touches[i].identifier);
+            if(idx >= 0) {
+                touchState.splice(idx, 1);  // remove it; we're done
+            }
+            else {
+
+                console.log("no touches");
+
+            }
+        }
+        sendToLogger("touchState: ", touchState);
+
+    }
+    var handleCancel = function (evt) {
+        evt.preventDefault();
+        var touches = evt.changedTouches;
+
+        for (var i=0; i < touches.length; i++) {
+            touchState.splice(i, 1);  // remove it; we're done
+        }
+        sendToLogger("touchState: ", touchState);
+
+    }
     screen.appendChild(cameraContainer);
+
+    cameraContainer.addEventListener("touchstart", getTouches, false);
+    cameraContainer.addEventListener("touchend", removeTouch, false);
+    cameraContainer.addEventListener("touchcancel", handleCancel, false);
+
 }
 //////////////////////////////////////////////////////
 
@@ -414,6 +537,7 @@ var lastTime = Date.now();
 function main() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
+
     activeCamera.render();
 //    currentScene.render();
     sendToLogger("DELAY: ", dt);

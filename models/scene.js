@@ -13,9 +13,7 @@ function getCollision(obj, colObj){
     var r2 = colObj.x + colObj.width + colObj.vx;
     var b2 = colObj.y + colObj.height + colObj.vy;
 
-
-
-    if (b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
+    if ( b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
         return false;
     }
 

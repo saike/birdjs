@@ -1,7 +1,7 @@
 var bge = require('../bge');
 
-
-//BASIC POSITION ACTUATOR
+/////////////////////////////
+///BASIC POSITION ACTUATOR///
 exports.positionActuator = function (actuName, obj) {
 
         this.name = actuName;
@@ -47,6 +47,9 @@ exports.positionActuator = function (actuName, obj) {
 
 };
 
+
+/////////////////////
+///Follow Actuator///
 exports.followActuator = function(actuName, obj, target, distanceX, distanceY){
 
     this.target = target;
@@ -68,6 +71,8 @@ exports.followActuator = function(actuName, obj, target, distanceX, distanceY){
 
 }
 
+////////////////////////
+///Animation Actuator///
 exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX, framesY){
     bge.animationActuators.push(this);
     this.name = actuName;
@@ -87,7 +92,7 @@ exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX
         var spriteHeight = actu.owner.height*framesY;
         actu.currentFrame[0] = actu.owner.width*actu.currentFrameX;
         actu.currentFrame[1] = actu.owner.height*actu.currentFrameY;
-        actu.owner.animations.push({sprite: actu.sprite, left: actu.currentFrame[0], top: actu.currentFrame[1], framesX: actu.framesX, framesY: actu.framesY});
+        actu.owner.animations.push({sprite: actu.sprite, left: actu.currentFrame[0], top: actu.currentFrame[1], framesX: actu.framesX, framesY: actu.framesY, objWidth: actu.owner.width, objHeight: actu.owner.height});
 
         if(actu.type == "loop"){
             actu.currentFrameX++;
@@ -105,6 +110,27 @@ exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX
 
         }
 
+
+    }
+
+}
+
+///////////////////////
+///Property actuator///
+exports.propertyActuator = function(actuName, obj, property, type, value){
+
+    this.owner = obj;
+    this.name = actuName;
+    this.property = property;
+    this.type = type;
+    this.value = value;
+    this.activate = function(){
+
+        if(this.type == "add"){
+
+            this.owner[this.property]+=this.value;
+
+        }
 
     }
 

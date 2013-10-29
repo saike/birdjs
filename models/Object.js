@@ -1,5 +1,8 @@
-var Object = module.exports = function(name, type, position, size, layer){
+var bge = require('../logic/bge');
 
+
+var Object = module.exports = function(name, type, position, size, layer){
+    bge.globalObjectList.push(this);
     this.name = name;
     this.type = type;
     this.x = position[0];
@@ -19,7 +22,10 @@ var Object = module.exports = function(name, type, position, size, layer){
     this.keyboardState = [];
     this.animations = [];
     this.mouseState = {x: 0, y: 0, clicked: []};
+    this.touchState = [];
     this.controllers = [];
+    this.visible = true;
+    this.text = false;
     this.distanceTo = function(object){
 
         var thisMidX = this.x + (this.width/2);

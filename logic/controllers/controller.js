@@ -1,5 +1,6 @@
-//MAIN CONTROLLER
-var Controller = module.exports = function(name, obj){
+//////////////////////
+///Basic Controller///
+exports.basicController = function(name, obj){
 
 
         this.name = name;
@@ -29,5 +30,40 @@ var Controller = module.exports = function(name, obj){
 
             }
         };
+
+}
+
+///////////////////
+///Or controller///
+exports.orController = function(name, obj){
+
+
+    this.name = name;
+    this.owner = obj;
+    this.sensors = [];
+    this.actuators = [];
+    this.activate = function(){
+
+        var sensPositive = false;
+
+        this.sensors.forEach(function(sens){
+
+            if(sens.positive()){
+
+                sensPositive = true;
+
+            }
+
+        });
+        if (sensPositive){
+
+            this.actuators.forEach(function(actu){
+
+                actu.activate();
+
+            });
+
+        }
+    };
 
 }

@@ -11,7 +11,7 @@ var swig = require('swig');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-
+io.set('log level', 1);
 var bge = require('./logic/bge');
 
 var Object = require('./models/object');
@@ -20,6 +20,7 @@ var Controller = require('./logic/controllers/controller');
 var Sensor = require('./logic/sensors/sensor');
 var Actuator = require('./logic/actuators/actuator');
 var Scene = require('./models/scene');
+var Client = require('./models/client');
 
 // all environments
 app.engine('html', swig.renderFile);
@@ -58,8 +59,6 @@ var UPS = FPS*2;
 
 var currentScene;
 
-//List of clients
-var clients = [];
 
 //CLASS CAMERA
 function Camera(name, width, height){
@@ -86,7 +85,7 @@ function Camera(name, width, height){
 function initCamera(name, obj){
 
     var initCamera = new Camera(name, 400, 200);
-    var followController = new Controller("follow", initCamera);
+    var followController = new Controller.basicController("follow", initCamera);
     var followActu = new Actuator.followActuator("flow", initCamera, obj, 175,100);
     followController.actuators.push(followActu);
     initCamera.controllers.push(followController);
@@ -99,9 +98,9 @@ function initCamera(name, obj){
 function newPlayer(name){
 
     var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50], 2)
-    var moveRightController = new Controller("moveRight", newPlayer);
-    var moveLeftController = new Controller("moveLeft", newPlayer);
-    var basicAnimationController = new Controller("animation", newPlayer);
+    var moveRightController = new Controller.basicController("moveRight", newPlayer);
+    var moveLeftController = new Controller.basicController("moveLeft", newPlayer);
+    var basicAnimationController = new Controller.basicController("animation", newPlayer);
 
     var animActu = new Actuator.animationActuator("basic", newPlayer, "images/basicAnim.png", "loop", 1, 4, 2);
     basicAnimationController.actuators.push(animActu);
@@ -120,12 +119,12 @@ function newPlayer(name){
 
     var moveRightActu = new Actuator.positionActuator("mR", newPlayer);
     moveRightActu.speedX = 10;
-    moveLeftActu.forceX = 10;
+    moveRightActu.forceX = 10;
 
     moveRightActu.frames = "always";
     moveRightController.actuators.push(moveRightActu);
 
-    var jumpController = new Controller("jump", newPlayer);
+    var jumpController = new Controller.basicController("jump", newPlayer);
 
     var spaceSensor = new Sensor.keyboardSensor("SPACE", 32, newPlayer);
     jumpController.sensors.push(spaceSensor)
@@ -136,10 +135,18 @@ function newPlayer(name){
     jumpActu.frames = "always";
     jumpController.actuators.push(jumpActu);
 
+    var mouseCont = new Controller.basicController("mouse", newPlayer);
+    var mouseSens = new Sensor.mouseSensor("left", "leftButton", newPlayer);
+    mouseCont.sensors.push(mouseSens);
+    var mouseActu = new Actuator.propertyActuator("scale", newPlayer, "width", "add", 2);
+    mouseCont.actuators.push(mouseActu);
+
+    newPlayer.controllers.push(mouseCont);
     newPlayer.controllers.push(moveRightController);
     newPlayer.controllers.push(jumpController);
     newPlayer.controllers.push(moveLeftController);
     newPlayer.controllers.push(basicAnimationController);
+    return newPlayer;
 }
 
 io.sockets.on('connection', function (socket) {
@@ -147,7 +154,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('new_client', function(data){
         var newClient = false;
 
-        clients.forEach(function(client){
+        bge.clients.forEach(function(client){
 
             if(client.address == socket.id){
 
@@ -157,10 +164,65 @@ io.sockets.on('connection', function (socket) {
 
         });
         if(!newClient){
-            newPlayer(data);
-            var newCamera = initCamera(data, getObject(data));
-            var newClient = { address: socket.id, name: data , activeCamera: newCamera};
-            clients.push(newClient);
+            var newPlObj = newPlayer(data);
+            var newCamera = initCamera(data, newPlObj);
+            newClient = new Client(data, socket.id);
+            newClient.activeCamera = newCamera;
+            newClient.clientObjects.push(newPlObj);
+
+            ///basic ui element
+            var timer = newClient.addUIObject("timer", [160,20], [100, 20], 9);
+            var timerController = new Controller.basicController("timer", timer);
+            var timerChangeActu = new Actuator.propertyActuator("timeChange", timer, "text", "add", 5);
+            timerController.actuators.push(timerChangeActu);
+            timer.controllers.push(timerController);
+            timer.text = 1;
+
+
+            ///move right touch controller
+            var rightButton = newClient.addUIObject("moveRight", [60, 150], [40, 25], 9);
+
+            var moveRightController = new Controller.basicController("moveRight", rightButton);
+
+            var moveRightSensor = new Sensor.touchSensor("mR", rightButton);
+            moveRightController.sensors.push(moveRightSensor);
+            var moveRightActu = new Actuator.positionActuator("mR", newClient.clientObjects[0]);
+            moveRightActu.speedX = 10;
+            moveRightActu.forceX = 10;
+
+            moveRightActu.frames = "always";
+            moveRightController.actuators.push(moveRightActu);
+            rightButton.controllers.push(moveRightController);
+
+            ///move left touch controller
+            var leftButton =  newClient.addUIObject("moveRight", [10, 150], [40, 25], 9);
+            var moveLeftController = new Controller.basicController("moveLeft", leftButton);
+            var moveLeftSensor = new Sensor.touchSensor("mL", leftButton);
+            moveLeftController.sensors.push(moveLeftSensor);
+            var moveLeftActu = new Actuator.positionActuator("mL", newClient.clientObjects[0]);
+            moveLeftActu.speedX = -10;
+            moveLeftActu.forceX = -10;
+
+            moveLeftActu.frames = "always";
+            moveLeftController.actuators.push(moveLeftActu);
+            leftButton.controllers.push(moveLeftController);
+
+            ///jump touch controller
+            var jumpButton = newClient.addUIObject("jumpSens", [340, 150], [40, 25], 9);
+            var jumpController = new Controller.basicController("jump", jumpButton);
+
+            var jumpSensor = new Sensor.touchSensor("jump", jumpButton);
+            jumpController.sensors.push(jumpSensor)
+
+            var jumpActu = new Actuator.positionActuator('jump', newClient.clientObjects[0]);
+            jumpActu.speedY = -10;
+            jumpActu.forceY = -10;
+            jumpActu.frames = "always";
+            jumpController.actuators.push(jumpActu);
+
+            jumpButton.controllers.push(jumpController);
+
+            bge.clients.push(newClient);
             var animations = [];
             bge.animationActuators.forEach(function(animation){
 
@@ -200,7 +262,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('client_event', function (data) {
         var updateClient = false;
         var updateObject = false;
-        clients.forEach(function(client){
+        bge.clients.forEach(function(client){
 
             if(client.address == socket.id){
 
@@ -210,17 +272,34 @@ io.sockets.on('connection', function (socket) {
 
         });
         if(updateClient){
+            if(data.keyboard){
 
-            updateObject = getObject(updateClient.name);
+                updateClient.keyboardState = data.keyboard;
+                updateClient.mouseState = {x: data.mouse_pos.x, y: data.mouse_pos.y, clicked: data.mouse}
 
+            }
+            else{
+
+                updateClient.touchState = data.touches;
+
+            }
+            updateClient.clientObjects.forEach(function(object){
+
+                 object.keyboardState = updateClient.keyboardState;
+                 object.mouseState = updateClient.mouseState;
+                 object.touchState = updateClient.touchState;
+
+            });
+            updateClient.ui.forEach(function(ui){
+
+                ui.keyboardState = updateClient.keyboardState;
+                ui.mouseState = updateClient.mouseState;
+                ui.touchState = updateClient.touchState;
+
+            });
         }
-        if (updateObject){
 
-            updateObject.keyboardState = data.keyboard;
-
-
-        }
-        console.log(data.mouse_pos.x + "  " + data.mouse_pos.x + "  " + data.mouse + "  " + data.keyboard);
+//        console.log(data.mouse_pos.x + "  " + data.mouse_pos.x + "  " + data.mouse + "  " + data.keyboard);
 
     });
     socket.on('disconnect', function () {
@@ -239,7 +318,7 @@ function updateClients(){
         var playerObj = false;
         var renderObjects = [];
 
-        clients.forEach(function(client){
+        bge.clients.forEach(function(client){
 
             if(client.address == socket.id){
 
@@ -264,12 +343,11 @@ function updateClients(){
                 var r2 = camera.x + camera.width;
                 var b2 = camera.y + camera.height;
 
-
-
                 if (b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
                     return false;
 
                 }
+
                 else {
 
                     var newRenderObject = new renderObject(object, updateClient.activeCamera);
@@ -278,7 +356,13 @@ function updateClients(){
                 }
 
             });
+            var updateUI = [];
+            updateClient.ui.forEach(function(el){
 
+                var newRenderObject = new renderObject(el, updateClient.activeCamera);
+                updateUI.push(newRenderObject);
+
+            });
 
             updateCamera = {
 
@@ -290,9 +374,11 @@ function updateClients(){
 
             };
 
+            socket.emit('update', { camera: updateCamera, uiList: updateUI, objectList: renderObjects});
+
+
         }
 
-        socket.emit('update', { camera: updateCamera, objectList: renderObjects});
 
     });
 
@@ -315,13 +401,28 @@ function getObject(name){
 
 //RENDER CLASS FOR OBJECT
 function renderObject(object, camera){
+    if(object.type == "ui"){
 
-    this.x = (object.x - camera.x).toFixed(2);
-    this.y = (object.y - camera.y).toFixed(2);
+        this.x = object.x;
+        this.y = object.y;
+
+    }
+    else {
+
+        this.x = (object.x - camera.x).toFixed(2);
+        this.y = (object.y - camera.y).toFixed(2);
+
+    }
+
     this.width = object.width;
     this.height = object.height;
     this.animations = object.animations;
     this.layer = object.layer;
+    if(object.text){
+
+        this.text = object.text;
+
+    }
 }
 
 //APP START FUNCTION
@@ -335,17 +436,22 @@ function init(){
 
     var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70], 2);
     var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100], 1);
+
     function main_loop(){
         currentScene.redraw();
 
-        clients.forEach(function(client){
+        bge.clients.forEach(function(client){
 
              if(client.activeCamera){
 
                  client.activeCamera.redraw();
 
              }
+             client.ui.forEach(function(el){
 
+                 el.redraw();
+
+             });
         });
 
         updateClients();
