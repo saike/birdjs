@@ -136,10 +136,11 @@ function newPlayer(name){
     jumpController.actuators.push(jumpActu);
 
     var mouseCont = new Controller.basicController("mouse", newPlayer);
-    var mouseSens = new Sensor.mouseSensor("left", "leftButton", newPlayer);
+    var mouseSens = new Sensor.mouseSensor("left", "hover", newPlayer);
     mouseCont.sensors.push(mouseSens);
-    var mouseActu = new Actuator.propertyActuator("scale", newPlayer, "width", "add", 2);
+    var mouseActu = new Actuator.propertyActuator("scale", "targets", "width", "add", 2);
     mouseCont.actuators.push(mouseActu);
+
 
     newPlayer.controllers.push(mouseCont);
     newPlayer.controllers.push(moveRightController);
@@ -182,10 +183,14 @@ io.sockets.on('connection', function (socket) {
             ///move right touch controller
             var rightButton = newClient.addUIObject("moveRight", [60, 150], [40, 25], 9);
 
-            var moveRightController = new Controller.basicController("moveRight", rightButton);
+            var moveRightController = new Controller.orController("moveRight", rightButton);
 
             var moveRightSensor = new Sensor.touchSensor("mR", rightButton);
             moveRightController.sensors.push(moveRightSensor);
+
+            var hoverRightSens = new Sensor.mouseSensor("hoverRight", "hoverMe", rightButton);
+            moveRightController.sensors.push(hoverRightSens);
+
             var moveRightActu = new Actuator.positionActuator("mR", newClient.clientObjects[0]);
             moveRightActu.speedX = 10;
             moveRightActu.forceX = 10;
@@ -275,8 +280,12 @@ io.sockets.on('connection', function (socket) {
             if(data.keyboard){
 
                 updateClient.keyboardState = data.keyboard;
-                updateClient.mouseState = {x: data.mouse_pos.x, y: data.mouse_pos.y, clicked: data.mouse}
+                updateClient.clientMouseState = {x: data.mouse_pos.x, y: data.mouse_pos.y, clicked: data.mouse};
+                if(updateClient.activeCamera){
 
+                    updateClient.mouseState = {x: parseInt(data.mouse_pos.x) + updateClient.activeCamera.x, y: parseInt(data.mouse_pos.y) + updateClient.activeCamera.y, clicked: data.mouse};
+
+                }
             }
             else{
 
@@ -293,7 +302,7 @@ io.sockets.on('connection', function (socket) {
             updateClient.ui.forEach(function(ui){
 
                 ui.keyboardState = updateClient.keyboardState;
-                ui.mouseState = updateClient.mouseState;
+                ui.mouseState = updateClient.clientMouseState;
                 ui.touchState = updateClient.touchState;
 
             });
@@ -435,6 +444,7 @@ function init(){
     var leftWall = currentScene.addObject("rightWall", "static", [initScene.width,0], [100, initScene.height + 100], "all");
 
     var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70], 2);
+
     var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100], 1);
 
     function main_loop(){

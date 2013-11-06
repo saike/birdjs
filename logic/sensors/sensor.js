@@ -1,3 +1,6 @@
+var bge = require('../bge');
+
+
 /////////////////////
 ///Keyboard Sensor///
 exports.keyboardSensor = function(name, key, obj){
@@ -38,23 +41,48 @@ exports.mouseSensor = function(name, type, obj){
     this.name = name;
     this.type = type;
     this.owner = obj;
+    this.targetName = false;
+    this.targets = [];
     this.positive = function(){
-        var sensor = this;
-        if(sensor.type == "leftButton"){
 
-            if(sensor.owner.mouseState.clicked.indexOf(1) >= 0){
+        var sensor = this;
+        sensor.targets = [];
+
+        var mouseState = sensor.owner.mouseState;
+        console.log(mouseState.x + "  " + mouseState.y);
+        if(sensor.type == "leftClick"){
+
+            if(mouseState.clicked.indexOf(1) >= 0){
 
                 return true;
 
             }
-            else {
 
-                return false;
+
+        }
+        if(sensor.type == "hover"){
+            bge.globalObjectList.forEach(function(object){
+
+                if(mouseState.x > object.left() && mouseState.x < object.right() && mouseState.y > object.top() && mouseState.y < object.bottom()){
+                    sensor.targets.push(object);
+                }
+
+            });
+            if(sensor.targets.length > 0){
+                console.log("it's true");
+                return true;
 
             }
 
         }
+        if(sensor.type == "hoverMe"){
+            var owner = sensor.owner;
+            if(mouseState.x > owner.left() && mouseState.x < owner.right() && mouseState.y > owner.top() && mouseState.y < owner.bottom()){
+                return true;
+            }
 
+        }
+        return false;
     }
 
 }
@@ -83,6 +111,7 @@ exports.touchSensor = function(name, obj){
             }
 
         });
+
         if(posTouch){
 
             return true;

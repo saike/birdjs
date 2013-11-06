@@ -10,6 +10,7 @@ var Client = module.exports = function(name, address){
     this.clientObjects = [];
     this.keyboardState = [];
     this.mouseState = {x: 0, y: 0, clicked: []};
+    this.clientMouseState = {x: 0, y: 0, clicked: []};
     this.touchState = [];
 
     this.addUIObject = function(name, position, size, layer){

@@ -14,7 +14,7 @@ exports.positionActuator = function (actuName, obj) {
         this.dumpSpeed = 0;
         this.frames = 0;
         this.owner = obj;
-        this.activate = function () {
+        this.activate = function (targets) {
             if (this.frames > 0 || this.frames == "always") {
 
                     if (this.owner.type == "ghost" || this.owner.type == "background") {
@@ -57,7 +57,7 @@ exports.followActuator = function(actuName, obj, target, distanceX, distanceY){
     this.name = actuName;
     this.distanceX = distanceX;
     this.distanceY = distanceY;
-    this.activate = function(){
+    this.activate = function(targets){
 
 //        var ownerMidX = this.owner.x + (this.owner.width/2);
 //        var ownerMidY = this.owner.y + (this.owner.height/2);
@@ -86,7 +86,7 @@ exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX
     this.currentFrameY = 0;
     this.currentFrame = [0,0];
 
-    this.activate = function(){
+    this.activate = function(targets){
         var actu = this;
         var spriteWidth = actu.owner.width*framesX;
         var spriteHeight = actu.owner.height*framesY;
@@ -119,18 +119,37 @@ exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX
 ///Property actuator///
 exports.propertyActuator = function(actuName, obj, property, type, value){
 
-    this.owner = obj;
+    this.target = obj;
     this.name = actuName;
     this.property = property;
     this.type = type;
     this.value = value;
-    this.activate = function(){
+    this.activate = function(targets){
+        var actu = this;
+        function actuActivate(target){
 
-        if(this.type == "add"){
+            if(actu.type == "add"){
 
-            this.owner[this.property]+=this.value;
+                target[actu.property]+=actu.value;
+
+            }
 
         }
+        if(this.target == "targets" && targets && targets.length > 0){
+
+            targets.forEach(function(target){
+
+                 actuActivate(target);
+
+            });
+
+        }
+        else {
+
+            actuActivate(this.target);
+
+        }
+
 
     }
 

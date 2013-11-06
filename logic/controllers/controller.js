@@ -10,7 +10,7 @@ exports.basicController = function(name, obj){
         this.activate = function(){
 
             var sensPositive = true;
-
+            var targets = [];
             this.sensors.forEach(function(sens){
 
                 if(!sens.positive()){
@@ -18,13 +18,24 @@ exports.basicController = function(name, obj){
                     sensPositive = false;
 
                 }
+                else{
+
+                    if(sens.targets && sens.targets.length > 0){
+                        sens.targets.forEach(function(target){
+
+                            targets.push(target);
+
+                        });
+
+                    }
+
+                }
 
             });
             if (sensPositive){
-
                 this.actuators.forEach(function(actu){
 
-                    actu.activate();
+                    actu.activate(targets);
 
                 });
 
@@ -43,7 +54,7 @@ exports.orController = function(name, obj){
     this.sensors = [];
     this.actuators = [];
     this.activate = function(){
-
+        var targets = [];
         var sensPositive = false;
 
         this.sensors.forEach(function(sens){
@@ -51,7 +62,14 @@ exports.orController = function(name, obj){
             if(sens.positive()){
 
                 sensPositive = true;
+                if(sens.targets && sens.targets.length > 0){
+                    sens.targets.forEach(function(target){
 
+                        targets.push(target);
+
+                    });
+
+                }
             }
 
         });
@@ -59,7 +77,7 @@ exports.orController = function(name, obj){
 
             this.actuators.forEach(function(actu){
 
-                actu.activate();
+                actu.activate(targets);
 
             });
 
@@ -67,3 +85,4 @@ exports.orController = function(name, obj){
     };
 
 }
+
