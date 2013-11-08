@@ -2,16 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1877c509-fa48-40a2-a380-d9f332c80f10" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logic/actuators/actuator.js" afterPath="$PROJECT_DIR$/logic/actuators/actuator.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/client.js" afterPath="$PROJECT_DIR$/models/client.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logic/controllers/controller.js" afterPath="$PROJECT_DIR$/logic/controllers/controller.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logic/sensors/sensor.js" afterPath="$PROJECT_DIR$/logic/sensors/sensor.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="birdjs.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1383737853835" ignored="false" />
+    <file path="/Dummy.txt" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1383834564778" ignored="false" />
     <file path="/object.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1383036780469" ignored="false" />
     <file path="/app.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1383741150901" ignored="false" />
     <file path="/controller.js" changelist="1877c509-fa48-40a2-a380-d9f332c80f10" time="1383739069524" ignored="false" />
@@ -57,10 +54,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="app.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="app.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="283" column="114" selection-start="9276" selection-end="9276" vertical-scroll-proportion="0.0">
+            <state line="139" column="24" selection-start="3918" selection-end="3918" vertical-scroll-proportion="0.46747968">
               <folding />
             </state>
           </provider>
@@ -138,10 +135,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sensor.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="sensor.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/logic/sensors/sensor.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="56" selection-start="1014" selection-end="1014" vertical-scroll-proportion="0.3292683">
+            <state line="51" column="0" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -213,7 +210,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -406,6 +402,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -413,8 +410,8 @@
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="options.lastSelected" value="editor.preferences.appearance" />
     <property name="FullScreen" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="PublishConfig">
     <servers>
@@ -645,16 +642,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
+    <entry file="file://$PROJECT_DIR$/logic/sensors/sensor.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="283" column="114" selection-start="9276" selection-end="9276" vertical-scroll-proportion="0.0">
+        <state line="51" column="0" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/logic/sensors/sensor.js">
+    <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="56" selection-start="1014" selection-end="1014" vertical-scroll-proportion="0.3292683">
+        <state line="139" column="24" selection-start="3918" selection-end="3918" vertical-scroll-proportion="0.46747968">
           <folding />
         </state>
       </provider>

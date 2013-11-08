@@ -136,8 +136,8 @@ function newPlayer(name){
     jumpController.actuators.push(jumpActu);
 
     var mouseCont = new Controller.basicController("mouse", newPlayer);
-    var mouseSens = new Sensor.mouseSensor("left", "hover", newPlayer);
-    mouseCont.sensors.push(mouseSens);
+//    var mouseSens = new Sensor.mouseSensor("left", "hover", newPlayer);
+//    mouseCont.sensors.push(mouseSens);
     var mouseActu = new Actuator.propertyActuator("scale", "targets", "width", "add", 2);
     mouseCont.actuators.push(mouseActu);
 

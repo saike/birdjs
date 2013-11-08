@@ -49,7 +49,6 @@ exports.mouseSensor = function(name, type, obj){
         sensor.targets = [];
 
         var mouseState = sensor.owner.mouseState;
-        console.log(mouseState.x + "  " + mouseState.y);
         if(sensor.type == "leftClick"){
 
             if(mouseState.clicked.indexOf(1) >= 0){
