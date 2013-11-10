@@ -73,40 +73,35 @@ exports.followActuator = function(actuName, obj, target, distanceX, distanceY){
 
 ////////////////////////
 ///Animation Actuator///
-exports.animationActuator = function(actuName, obj, sprite, type, speed, framesX, framesY){
-    bge.animationActuators.push(this);
+exports.animationActuator = function(actuName, obj, type, speed, startFrame, endFrame){
     this.name = actuName;
-    this.sprite = sprite;
     this.owner = obj;
     this.type = type;
     this.speed = speed;
-    this.framesX = framesX;
-    this.framesY = framesY;
-    this.currentFrameX = 0;
-    this.currentFrameY = 0;
-    this.currentFrame = [0,0];
+    this.currentFrame = startFrame;
+    this.delay = 0;
+    this.startFrame = startFrame;
+    this.endFrame = endFrame;
 
     this.activate = function(targets){
         var actu = this;
-        var spriteWidth = actu.owner.width*framesX;
-        var spriteHeight = actu.owner.height*framesY;
-        actu.currentFrame[0] = actu.owner.width*actu.currentFrameX;
-        actu.currentFrame[1] = actu.owner.height*actu.currentFrameY;
-        actu.owner.animations.push({sprite: actu.sprite, left: actu.currentFrame[0], top: actu.currentFrame[1], framesX: actu.framesX, framesY: actu.framesY, objWidth: actu.owner.width, objHeight: actu.owner.height});
+
+        actu.owner.animations.push({n: actu.name, f: actu.currentFrame});
 
         if(actu.type == "loop"){
-            actu.currentFrameX++;
-            if(actu.currentFrameX >= actu.framesX){
+            actu.delay++;
+            if(actu.delay >= actu.speed){
+                actu.delay = 0;
+                actu.currentFrame++;
 
-                actu.currentFrameX = 0;
-                actu.currentFrameY++;
-            }
-            if(actu.currentFrameY >= actu.framesY){
-
-                actu.currentFrameY = 0;
 
             }
 
+            if(actu.currentFrame >= actu.endFrame){
+
+                actu.currentFrame = actu.startFrame;
+
+            }
 
         }
 

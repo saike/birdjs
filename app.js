@@ -4,10 +4,31 @@
  */
 var express = require('express');
 var routes = require('./routes');
+console.log(routes);
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 var swig = require('swig');
+var walk = require('walk');
+
+
+
+
+///Checking and Loading sprites
+var sprites = [];
+
+var walker  = walk.walk('./public/animations', { followLinks: false });
+
+walker.on('file', function(root, stat, next) {
+    // Add this file to the list of files
+    sprites.push((root + '/' + stat.name).split("./public/")[1]);
+    next();
+});
+
+walker.on('end', function() {
+    console.log(sprites);
+});
+
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
@@ -21,6 +42,7 @@ var Sensor = require('./logic/sensors/sensor');
 var Actuator = require('./logic/actuators/actuator');
 var Scene = require('./models/scene');
 var Client = require('./models/client');
+var Game = require('./models/game');
 
 // all environments
 app.engine('html', swig.renderFile);
@@ -43,6 +65,10 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 
 app.get('/users', user.list);
+
+app.get('/game', routes.game);
+
+//app.get('/error', routes.error);
 
 
 
@@ -95,14 +121,14 @@ function initCamera(name, obj){
 }
 
 //CREATE NEW PLAYER
-function newPlayer(name){
+function newPlayer(name, game){
 
-    var newPlayer = currentScene.addObject(name, "rigit", [50,50], [50,50], 2)
+    var newPlayer = game.currentScene.addObject(name, "rigit", [50,50], [50,50], 2)
     var moveRightController = new Controller.basicController("moveRight", newPlayer);
     var moveLeftController = new Controller.basicController("moveLeft", newPlayer);
     var basicAnimationController = new Controller.basicController("animation", newPlayer);
 
-    var animActu = new Actuator.animationActuator("basic", newPlayer, "images/basicAnim.png", "loop", 1, 4, 2);
+    var animActu = new Actuator.animationActuator("basicanimation", newPlayer, "loop", 5, 0, 5);
     basicAnimationController.actuators.push(animActu);
 
     var aKeySensor = new Sensor.keyboardSensor("A", 65, newPlayer);
@@ -154,128 +180,110 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('new_client', function(data){
         var newClient = false;
-
+        var clientGame = false;
+        var clientObject = false;
         bge.clients.forEach(function(client){
-
-            if(client.address == socket.id){
+            console.log(client.address + " check client " + socket.handshake.address.address);
+            if(client.address == socket.handshake.address.address || client.address == "127.0.0.1"){
 
                 newClient = client;
-
+                clientGame = newClient.getGame();
+                clientObject = getObject(socket.handshake.address.address, clientGame.currentScene );
             }
 
         });
-        if(!newClient){
-            var newPlObj = newPlayer(data);
-            var newCamera = initCamera(data, newPlObj);
-            newClient = new Client(data, socket.id);
-            newClient.activeCamera = newCamera;
-            newClient.clientObjects.push(newPlObj);
+        if(newClient && clientObject){
 
-            ///basic ui element
-            var timer = newClient.addUIObject("timer", [160,20], [100, 20], 9);
-            var timerController = new Controller.basicController("timer", timer);
-            var timerChangeActu = new Actuator.propertyActuator("timeChange", timer, "text", "add", 5);
-            timerController.actuators.push(timerChangeActu);
-            timer.controllers.push(timerController);
-            timer.text = 1;
+            console.log(newClient.address + "  " + clientObject.name);
+
+        }
+        if(!clientObject && newClient && clientGame){
+
+                var newPlObj = newPlayer(socket.handshake.address.address, clientGame);
+                var newCamera = initCamera(socket.handshake.address.address , newPlObj);
+                newClient.activeCamera = newCamera;
+                newClient.clientObjects.push(newPlObj);
+
+                ///basic ui element
+                var timer = newClient.addUIObject("timer", [160,20], [100, 20], 9);
+                var timerController = new Controller.basicController("timer", timer);
+                var timerChangeActu = new Actuator.propertyActuator("timeChange", timer, "text", "add", 5);
+                timerController.actuators.push(timerChangeActu);
+                timer.controllers.push(timerController);
+                timer.text = 1;
 
 
-            ///move right touch controller
-            var rightButton = newClient.addUIObject("moveRight", [60, 150], [40, 25], 9);
+                ///move right touch controller
+                var rightButton = newClient.addUIObject("moveRight", [60, 150], [40, 25], 9);
 
-            var moveRightController = new Controller.orController("moveRight", rightButton);
+                var moveRightController = new Controller.orController("moveRight", rightButton);
 
-            var moveRightSensor = new Sensor.touchSensor("mR", rightButton);
-            moveRightController.sensors.push(moveRightSensor);
+                var moveRightSensor = new Sensor.touchSensor("mR", rightButton);
+                moveRightController.sensors.push(moveRightSensor);
 
-            var hoverRightSens = new Sensor.mouseSensor("hoverRight", "hoverMe", rightButton);
-            moveRightController.sensors.push(hoverRightSens);
+                var hoverRightSens = new Sensor.mouseSensor("hoverRight", "hoverMe", rightButton);
+                moveRightController.sensors.push(hoverRightSens);
 
-            var moveRightActu = new Actuator.positionActuator("mR", newClient.clientObjects[0]);
-            moveRightActu.speedX = 10;
-            moveRightActu.forceX = 10;
+                var moveRightActu = new Actuator.positionActuator("mR", newClient.clientObjects[0]);
+                moveRightActu.speedX = 10;
+                moveRightActu.forceX = 10;
 
-            moveRightActu.frames = "always";
-            moveRightController.actuators.push(moveRightActu);
-            rightButton.controllers.push(moveRightController);
+                moveRightActu.frames = "always";
+                moveRightController.actuators.push(moveRightActu);
+                rightButton.controllers.push(moveRightController);
 
-            ///move left touch controller
-            var leftButton =  newClient.addUIObject("moveRight", [10, 150], [40, 25], 9);
-            var moveLeftController = new Controller.basicController("moveLeft", leftButton);
-            var moveLeftSensor = new Sensor.touchSensor("mL", leftButton);
-            moveLeftController.sensors.push(moveLeftSensor);
-            var moveLeftActu = new Actuator.positionActuator("mL", newClient.clientObjects[0]);
-            moveLeftActu.speedX = -10;
-            moveLeftActu.forceX = -10;
+                ///move left touch controller
+                var leftButton =  newClient.addUIObject("moveRight", [10, 150], [40, 25], 9);
+                var moveLeftController = new Controller.basicController("moveLeft", leftButton);
+                var moveLeftSensor = new Sensor.touchSensor("mL", leftButton);
+                moveLeftController.sensors.push(moveLeftSensor);
+                var moveLeftActu = new Actuator.positionActuator("mL", newClient.clientObjects[0]);
+                moveLeftActu.speedX = -10;
+                moveLeftActu.forceX = -10;
 
-            moveLeftActu.frames = "always";
-            moveLeftController.actuators.push(moveLeftActu);
-            leftButton.controllers.push(moveLeftController);
+                moveLeftActu.frames = "always";
+                moveLeftController.actuators.push(moveLeftActu);
+                leftButton.controllers.push(moveLeftController);
 
-            ///jump touch controller
-            var jumpButton = newClient.addUIObject("jumpSens", [340, 150], [40, 25], 9);
-            var jumpController = new Controller.basicController("jump", jumpButton);
+                ///jump touch controller
+                var jumpButton = newClient.addUIObject("jumpSens", [340, 150], [40, 25], 9);
+                var jumpController = new Controller.basicController("jump", jumpButton);
 
-            var jumpSensor = new Sensor.touchSensor("jump", jumpButton);
-            jumpController.sensors.push(jumpSensor)
+                var jumpSensor = new Sensor.touchSensor("jump", jumpButton);
+                jumpController.sensors.push(jumpSensor)
 
-            var jumpActu = new Actuator.positionActuator('jump', newClient.clientObjects[0]);
-            jumpActu.speedY = -10;
-            jumpActu.forceY = -10;
-            jumpActu.frames = "always";
-            jumpController.actuators.push(jumpActu);
+                var jumpActu = new Actuator.positionActuator('jump', newClient.clientObjects[0]);
+                jumpActu.speedY = -10;
+                jumpActu.forceY = -10;
+                jumpActu.frames = "always";
+                jumpController.actuators.push(jumpActu);
 
-            jumpButton.controllers.push(jumpController);
+                jumpButton.controllers.push(jumpController);
 
-            bge.clients.push(newClient);
-            var animations = [];
-            bge.animationActuators.forEach(function(animation){
 
-                 animations.push({
-
-                     sprite: animation.sprite,
-                     objWidth: animation.owner.width,
-                     objHeight: animation.owner.height,
-                     framesX: animation.framesX,
-                     framesY: animation.framesY
-
-                 });
-
-            });
-
-            if(currentScene && newClient.activeCamera){
-                  var renderScene = {name: currentScene.name, width: currentScene.width, height: currentScene.height};
-                  var updateCamera = {
-
-                        name: newClient.activeCamera.name,
-                        width: newClient.activeCamera.width,
-                        height: newClient.activeCamera.height,
-                        x: newClient.activeCamera.x,
-                        y: newClient.activeCamera.y
-
-                    };
-
-                  socket.emit('set_scene', {camera: updateCamera, scene: renderScene, animations: animations});
-
-            }
 
         }
 
+        if(clientGame.currentScene && newClient.activeCamera){
+            var renderScene = {name: currentScene.name, width: currentScene.width, height: currentScene.height};
+            var updateCamera = {
 
+                name: newClient.activeCamera.name,
+                width: newClient.activeCamera.width,
+                height: newClient.activeCamera.height,
+                x: newClient.activeCamera.x,
+                y: newClient.activeCamera.y
+
+            };
+
+            socket.emit('set_scene', {camera: updateCamera, scene: renderScene, sprites: sprites});
+
+        }
     });
 
     socket.on('client_event', function (data) {
-        var updateClient = false;
-        var updateObject = false;
-        bge.clients.forEach(function(client){
+        var updateClient = bge.getClient(socket.handshake.address.address);
 
-            if(client.address == socket.id){
-
-                updateClient = client;
-
-            }
-
-        });
         if(updateClient){
             if(data.keyboard){
 
@@ -312,8 +320,9 @@ io.sockets.on('connection', function (socket) {
 
     });
     socket.on('disconnect', function () {
-
-
+        var ca = socket.handshake.address.address
+        console.log("disconnect  " + ca);
+//        bge.removeClient(ca);
 
     });
 });
@@ -324,21 +333,20 @@ function updateClients(){
     io.sockets.clients().forEach(function(socket){
         var updateClient = false;
         var updateCamera = false;
-        var playerObj = false;
         var renderObjects = [];
-
+        var clientGame = false;
         bge.clients.forEach(function(client){
 
-            if(client.address == socket.id){
+            if(client.address == socket.handshake.address.address || client.address == "127.0.0.1"){
 
                 updateClient = client;
-                playerObj = getObject(client.name);
+                clientGame = updateClient.getGame();
             }
 
         });
-        if(updateClient && updateClient.activeCamera && playerObj){
+        if(updateClient && updateClient.activeCamera && clientGame){
 
-            currentScene.objects.forEach(function(object){
+            clientGame.currentScene.objects.forEach(function(object){
 
 
                 var camera = updateClient.activeCamera;
@@ -394,9 +402,9 @@ function updateClients(){
 }
 
 //MAIN GET OBJECT FUNCTION
-function getObject(name){
+function getObject(name, scene){
     var objects = [];
-    currentScene.objects.forEach(function(object){
+    scene.objects.forEach(function(object){
 
         if (object.name == name){
 
@@ -436,15 +444,23 @@ function renderObject(object, camera){
 
 //APP START FUNCTION
 function init(){
+    var demoGame = new Game("startGame");
+    bge.games.push(demoGame);
     var initScene = new Scene("start", 800, 300);
     initScene.gravity = 0.5;
-    currentScene = initScene;
+
+    demoGame.addScene(initScene);
+    demoGame.setCurrentScene("start");
+    currentScene = demoGame.currentScene;
     var floor = currentScene.addObject("floor", "static", [0,initScene.height-5], [initScene.width, 100], "all");
     var leftWall = currentScene.addObject("leftWall", "static", [-100,0], [100, initScene.height + 100], "all");
     var leftWall = currentScene.addObject("rightWall", "static", [initScene.width,0], [100, initScene.height + 100], "all");
 
     var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70], 2);
-
+    var boxCont = new Controller.basicController("boxCont", penis);
+    var boxActu = new Actuator.animationActuator("box1", penis, "loop", 1, 0, 0);
+    boxCont.actuators.push(boxActu);
+    penis.controllers.push(boxCont);
     var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100], 1);
 
     function main_loop(){

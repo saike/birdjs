@@ -35,45 +35,6 @@ var uiList = false;
 
 var playerName = Math.random();
 
-var Animations = {
-
-    animations: [],
-    scale: 1,
-    sprites: [],
-    update: function(){
-        var anims = this;
-        this.sprites = [];
-        this.animations.forEach(function(animation){
-            anims.scale = scale;
-            var resImage = resources.get(animation.sprite);
-            if(resImage){
-                console.log("update animation");
-                var c = document.createElement("canvas");
-                c.width = animation.objWidth * animation.framesX * scale;
-                c.height = animation.objHeight * animation.framesY * scale;
-                c.className = "animation";
-                c.getContext("2d").drawImage(resImage, 0,0, c.width, c.height);
-
-                image = new Image();
-                image.id = animation.sprite;
-                image.src = c.toDataURL("image/png");
-
-                c = null;
-                image.onload = function(){
-                    image.onload = null;
-                    anims.sprites.push(image);
-
-
-                }
-            }
-
-
-        });
-
-    }
-
-};
-
 
 //////////////////////////////////////////////////////
 //Viewport object
@@ -97,11 +58,6 @@ var activeCamera = {
 
         this.container.height = width / aspectRatio;
         scale = width / this.width;
-        if(Animations.scale != scale){
-            console.log(Animations.scale + " scale " + scale);
-            Animations.update();
-
-        }
         var ctx = this.container.getContext("2d");
         ctx.clearRect(0, 0, this.container.width, this.container.height);
         ctx.save();
@@ -125,22 +81,13 @@ var activeCamera = {
             if(object.animations.length > 0){
 
                 object.animations.forEach(function(animation){
-                    var currentSprite = false;
-                    Animations.sprites.forEach(function(sprite){
+                    var currentSprite = "animations/" + animation.n + "/" + animation.f + ".png";
 
-                        if(sprite.id == animation.sprite){
+                    sendToLogger("animation: ", currentSprite + "  " + resources.get(currentSprite));
 
-                            currentSprite = sprite;
-                            return false;
-                        }
+                    if(resources.get(currentSprite)){
 
-                    });
-
-                    sendToLogger("animation: ", Animations.animations + " sprites: " + Animations.sprites);
-
-                    if(currentSprite){
-
-                        ctx.drawImage(currentSprite, animation.left*scale, parseFloat(animation.top*scale), parseFloat(object.width*scale), parseFloat(object.height*scale), parseFloat(object.x*scale).toFixed(2), parseFloat(object.y*scale).toFixed(2), parseFloat(object.width*scale).toFixed(2), parseFloat(object.height*scale).toFixed(2) );
+                        ctx.drawImage(resources.get(currentSprite), parseFloat(object.x*scale).toFixed(2), parseFloat(object.y*scale).toFixed(2), parseFloat(object.width*scale).toFixed(2), parseFloat(object.height*scale).toFixed(2) );
 
                     }
 
@@ -220,34 +167,12 @@ function connect(){
     socket.emit('new_client', playerName);
     socket.on('set_scene', function(data){
 
-        Animations.sprites = [];
-        Animations.animations = [];
+
         setCamera(data.camera);
 
         updateCamera(data.camera);
-        Animations.scale = scale;
-
-        data.animations.forEach(function(animation){
-            Animations.animations.push(animation);
-            var resImage = resources.get(animation.sprite);
-            var c = document.createElement("canvas");
-            c.width = animation.objWidth * animation.framesX * scale;
-            c.height = animation.objHeight * animation.framesY * scale;
-            c.className = "animation";
-            c.getContext("2d").drawImage(resImage, 0,0, c.width, c.height);
-            console.log("new animation");
-            image = new Image();
-            image.id = animation.sprite;
-            image.src = c.toDataURL("image/png");
-            c = null;
-            image.onload = function(){
-                image.onload = null;
-                Animations.sprites.push(image);
-
-            }
-
-        });
-        console.log("new Scene apply from server: " + currentScene.name + "  " + Animations.animations);
+        resources.load(data.sprites);
+        console.log("new Scene apply from server: " + currentScene.name + "  " + data.sprites);
 
     });
     socket.on('update', function (data) {
@@ -561,6 +486,7 @@ resources.load([
     'images/images.jpg',
     'images/look_from_another_planet_by_johndoop-d5ezloz.jpg',
     'images/Wood_Box_Texture.jpg'
+
 ]);
 
 
