@@ -123,14 +123,73 @@ function initCamera(name, obj){
 //CREATE NEW PLAYER
 function newPlayer(name, game){
 
-    var newPlayer = game.currentScene.addObject(name, "rigit", [50,50], [50,50], 2)
+
+    var bullet = new Object("bullet", "ghost", [200,200], [5,5], 8);
+
+    bullet["bullet"] = true;
+    bge.prefabs.push(bullet);
+    var newPlayer = game.currentScene.addObject(name, "rigit", [500,100], [30,50], 2);
+    newPlayer["hp"] = 100;
+
+    var bulletController = new Controller.basicController("bulCont", newPlayer);
+
+    var bulletSensor = new Sensor.collisionSensor("bulletSens", newPlayer, "bullet");
+    bulletController.sensors.push(bulletSensor);
+
+    var bulletActu = new Actuator.propertyActuator("minusHP", newPlayer, "hp", "add", -20.00);
+    bulletController.actuators.push(bulletActu);
+//    var destrActu = new Actuator.destroyActuator("dstr", newPlayer, "targets");
+//    bulletController.actuators.push(destrActu);
+
+    newPlayer.controllers.push(bulletController);
+
+    var playerHP = game.currentScene.addObject(name+"HP", "ghost", [500,90], [50,5], 2);
+    var hpController = new Controller.basicController("playerHP", playerHP);
+    playerHP["text"] = newPlayer["hp"];
+    var hpFollow = new Actuator.followActuator("followPlayer", playerHP, newPlayer, -5, 5);
+    hpController.actuators.push(hpFollow);
+    playerHP.controllers.push(hpController);
+
+    var hpToTextCont = new Controller.basicController("hptotext", newPlayer);
+    var hpToTextActu = new Actuator.propertyActuator("hptotextactu", playerHP, "text", "external", newPlayer.name+".hp");
+    hpToTextCont.actuators.push(hpToTextActu);
+    newPlayer.controllers.push(hpToTextCont);
+
+    var selfDestrCont = new Controller.ifController("selfDstr", newPlayer, "hp<=0");
+    var selfDestrActu = new Actuator.destroyActuator("SelfDstr", newPlayer, newPlayer);
+    selfDestrCont.actuators.push(selfDestrActu);
+    newPlayer.controllers.push(selfDestrCont);
+
+    var selfDestrHP = new Controller.ifController("selfDstr", playerHP, "text<=0");
+    var selfDestrHPActu = new Actuator.destroyActuator("SelfDstr", playerHP, playerHP);
+    selfDestrHP.actuators.push(selfDestrHPActu);
+    playerHP.controllers.push(selfDestrHP);
+
+    var shootController = new Controller.basicController("shoot", newPlayer);
+    var shootSensor = new Sensor.mouseSensor("shoot", "leftClick", newPlayer, "", 10);
+    shootController.sensors.push(shootSensor);
+    var shootActu = new Actuator.shootActuator("shoot", newPlayer, "bullet", 10, 300, 600);
+    shootController.actuators.push(shootActu);
+    newPlayer.controllers.push(shootController);
+
     var moveRightController = new Controller.basicController("moveRight", newPlayer);
     var moveLeftController = new Controller.basicController("moveLeft", newPlayer);
     var basicAnimationController = new Controller.basicController("animation", newPlayer);
 
-    var animActu = new Actuator.animationActuator("basicanimation", newPlayer, "loop", 5, 0, 5);
-    basicAnimationController.actuators.push(animActu);
+    var moveRightAnim = new Actuator.animationActuator("moveRight", newPlayer, "loop", 3, 0, 4, 1);
 
+    moveRightController.actuators.push(moveRightAnim);
+
+    var moveLeftAnim = new Actuator.animationActuator("moveLeft", newPlayer, "loop", 3, 0, 4, 1);
+    moveLeftController.actuators.push(moveLeftAnim);
+
+    var animActu = new Actuator.animationActuator("basicanimation", newPlayer, "loop", 5, 0, 0, 1);
+
+    basicAnimationController.actuators.push(animActu);
+    var moveRightProperty = new Actuator.propertyActuator("rightSprite", animActu, "startFrame", "assign", 0);
+    moveRightController.actuators.push(moveRightProperty);
+    var moveLeftProperty = new Actuator.propertyActuator("leftSprite", animActu, "startFrame", "assign", 1);
+    moveLeftController.actuators.push(moveLeftProperty);
     var aKeySensor = new Sensor.keyboardSensor("A", 65, newPlayer);
     moveLeftController.sensors.push(aKeySensor);
 
@@ -162,9 +221,11 @@ function newPlayer(name, game){
     jumpController.actuators.push(jumpActu);
 
     var mouseCont = new Controller.basicController("mouse", newPlayer);
-//    var mouseSens = new Sensor.mouseSensor("left", "hover", newPlayer);
-//    mouseCont.sensors.push(mouseSens);
-    var mouseActu = new Actuator.propertyActuator("scale", "targets", "width", "add", 2);
+    var mouseSens = new Sensor.mouseSensor("Plhover", "hover", newPlayer, "grabme", 0);
+    var clickSens = new Sensor.mouseSensor("click", "rightClick", newPlayer, "", 0);
+    mouseCont.sensors.push(clickSens);
+    mouseCont.sensors.push(mouseSens);
+    var mouseActu = new Actuator.mouseActuator("grab", newPlayer, "targets", "targetsFollow");
     mouseCont.actuators.push(mouseActu);
 
 
@@ -221,7 +282,7 @@ io.sockets.on('connection', function (socket) {
                 var moveRightSensor = new Sensor.touchSensor("mR", rightButton);
                 moveRightController.sensors.push(moveRightSensor);
 
-                var hoverRightSens = new Sensor.mouseSensor("hoverRight", "hoverMe", rightButton);
+                var hoverRightSens = new Sensor.mouseSensor("hoverRight", "hoverMe", rightButton, "", 0);
                 moveRightController.sensors.push(hoverRightSens);
 
                 var moveRightActu = new Actuator.positionActuator("mR", newClient.clientObjects[0]);
@@ -366,9 +427,11 @@ function updateClients(){
                 }
 
                 else {
+                    if(object.visible){
 
-                    var newRenderObject = new renderObject(object, updateClient.activeCamera);
-                    renderObjects.push(newRenderObject);
+                        var newRenderObject = new renderObject(object, updateClient.activeCamera);
+                        renderObjects.push(newRenderObject);
+                    }
 
                 }
 
@@ -446,23 +509,69 @@ function renderObject(object, camera){
 function init(){
     var demoGame = new Game("startGame");
     bge.games.push(demoGame);
-    var initScene = new Scene("start", 800, 300);
+    var initScene = new Scene("start", demoGame.name,  800, 800);
     initScene.gravity = 0.5;
 
     demoGame.addScene(initScene);
     demoGame.setCurrentScene("start");
     currentScene = demoGame.currentScene;
-    var floor = currentScene.addObject("floor", "static", [0,initScene.height-5], [initScene.width, 100], "all");
-    var leftWall = currentScene.addObject("leftWall", "static", [-100,0], [100, initScene.height + 100], "all");
-    var leftWall = currentScene.addObject("rightWall", "static", [initScene.width,0], [100, initScene.height + 100], "all");
+    var floor = currentScene.addObject("floor", "static", [0,initScene.height-100], [initScene.width, 100], "all");
+    var leftWall = currentScene.addObject("leftWall", "static", [0,0], [100, initScene.height-101], "all");
+    var leftWall = currentScene.addObject("rightWall", "static", [initScene.width-100,0], [100, initScene.height-101], "all");
 
-    var penis = currentScene.addObject("penis", "rigit", [100, 100], [70,70], 2);
+    var penis = currentScene.addObject("penis", "rigit", [200, 100], [70,70], 2);
+    penis["grabme"] = true;
     var boxCont = new Controller.basicController("boxCont", penis);
-    var boxActu = new Actuator.animationActuator("box1", penis, "loop", 1, 0, 0);
+    var boxActu = new Actuator.animationActuator("box1", penis, "loop", 1, 0, 0, 0);
     boxCont.actuators.push(boxActu);
     penis.controllers.push(boxCont);
-    var penis1 = currentScene.addObject("penis1", "static", [300, 100], [100,100], 1);
+    var penis1 = currentScene.addObject("penis1", "static", [300, 500], [100,100], 1);
+    penis1["hp"] = 100.00;
 
+
+
+    var bulletController = new Controller.basicController("bulCont", penis1);
+
+    var bulletSensor = new Sensor.collisionSensor("bulletSens", penis1, "bullet");
+    bulletController.sensors.push(bulletSensor);
+
+    var bulletActu = new Actuator.propertyActuator("minusHP", penis1, "hp", "add", -20.00);
+    bulletController.actuators.push(bulletActu);
+    var destrActu = new Actuator.destroyActuator("dstr", penis1, "targets");
+    bulletController.actuators.push(destrActu);
+
+    penis1.controllers.push(bulletController);
+
+    var selfDestrCont = new Controller.ifController("selfDstr", penis1, "hp<=0");
+    var selfDestrActu = new Actuator.destroyActuator("SelfDstr", penis1, penis1);
+    selfDestrCont.actuators.push(selfDestrActu);
+    penis1.controllers.push(selfDestrCont);
+
+    penis1["grabme"] = true;
+
+
+    var penis1HP = currentScene.addObject("penis1HP", "ghost", [280,500], [100,5], 1);
+
+    var hpToTextCont = new Controller.basicController("hptotext", penis1);
+    var hpToTextActu = new Actuator.propertyActuator("hptotextactu", penis1HP, "text", "external", "penis1.hp");
+    hpToTextCont.actuators.push(hpToTextActu);
+    penis1.controllers.push(hpToTextCont);
+
+    var hpController = new Controller.basicController("penis1HP", penis1HP);
+    penis1HP.text = penis1["hp"];
+    var hpFollow = new Actuator.followActuator("followPlayer", penis1HP, penis1, -5, 10);
+    hpController.actuators.push(hpFollow);
+    penis1HP.controllers.push(hpController);
+
+
+
+
+
+    var selfDestrHP = new Controller.ifController("selfDstr", penis1HP, "text<=0");
+    var selfDestrHPActu = new Actuator.destroyActuator("SelfDstr", penis1HP, penis1HP);
+    selfDestrHP.actuators.push(selfDestrHPActu);
+    penis1HP.controllers.push(selfDestrHP);
+    penis1HP["text"] = penis1["hp"];
     function main_loop(){
         currentScene.redraw();
 

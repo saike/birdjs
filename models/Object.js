@@ -3,6 +3,8 @@ var bge = require('../logic/bge');
 
 var Object = module.exports = function(name, type, position, size, layer){
     bge.globalObjectList.push(this);
+    this.game = "";
+    this.scene = "";
     this.name = name;
     this.type = type;
     this.x = position[0];
@@ -26,6 +28,17 @@ var Object = module.exports = function(name, type, position, size, layer){
     this.controllers = [];
     this.visible = true;
     this.text = false;
+    this.trash = function(){
+
+      bge.trash.push(this);
+
+    };
+    this.getCurrentScene = function(){
+
+        var currentGame = bge.getGame(this.game);
+        var currentScene = currentGame.currentScene;
+        return currentScene;
+    };
     this.distanceTo = function(object){
 
         var thisMidX = this.x + (this.width/2);
@@ -36,11 +49,24 @@ var Object = module.exports = function(name, type, position, size, layer){
         var distanceY = Math.abs(thisMidY - targetMidY);
         return { distanceX: distanceX, distanceY: distanceY };
     };
-    this.vectorTo = function(x, y){
+    this.vectorTo = function(x, y, speed){
+        var midX = this.x + (this.width/2);
+        var midY = this.y + (this.height/2);
+        var polusX = (x - midX).toFixed(2);
+        var polusY = (y - midY).toFixed(2);
+        var aspect = (polusX/polusY).toFixed(2);
+        if(polusX<0){polusX = -1;}
+        else if (polusX>=0){polusX = 1;}
+        if(polusY<0){polusY = -1;}
+        else if (polusY>=0){polusY = 1;}
+        var speedY = Math.sqrt((speed*speed)/(aspect*aspect+1))*polusY;
+        var squareSpeed = speed*speed;
+        console.log(squareSpeed);
+        var squareSpeedY = speedY*speedY
+        var deltaSpeed = Math.abs(squareSpeed - squareSpeedY);
+        var speedX = Math.sqrt(deltaSpeed)*polusX;
 
-        var thisMidX = this.x + (this.width/2);
-        var thisMidY = this.y + (this.height/2);
-        return null;
+        return {speedX: speedX, speedY: speedY};
 
     };
     this.reset = function(){

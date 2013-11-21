@@ -80,7 +80,12 @@ var activeCamera = {
 
             if(object.animations.length > 0){
 
-                object.animations.forEach(function(animation){
+                var sortedAnimations = object.animations.sort(function(a,b){
+
+                    return a.l - b.l;
+
+                });
+                sortedAnimations.forEach(function(animation){
                     var currentSprite = "animations/" + animation.n + "/" + animation.f + ".png";
 
                     sendToLogger("animation: ", currentSprite + "  " + resources.get(currentSprite));
@@ -94,7 +99,7 @@ var activeCamera = {
                 });
 
             }
-            else if(object.text){
+            else if(typeof object.text != "undefined"){
 
                 ctx.fillStyle="white";
                 ctx.font = (object.height*scale).toFixed(2) + "pt Arial";

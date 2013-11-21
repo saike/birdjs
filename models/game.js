@@ -6,11 +6,24 @@ var Game = module.exports = function(name){
     this.clients = [];
     this.currentScene = false;
     this.scenes = [];
+    this.getScene = function(sceneName){
+       var getScene = false;
+       this.scenes.forEach(function(scene){
+
+           if(scene.name == sceneName){
+
+               getScene = scene;
+
+           }
+
+       });
+       return getScene;
+    };
     this.addScene = function(scene){
 
         this.scenes.push(scene);
 
-    }
+    };
     this.setCurrentScene = function(name){
         var game = this;
         var curScene = false;
@@ -29,7 +42,7 @@ var Game = module.exports = function(name){
 
         }
 
-    }
+    };
     this.getClient = function(address){
 
         var c = false;
@@ -45,5 +58,5 @@ var Game = module.exports = function(name){
         });
         return c;
 
-    }
-}
+    };
+};

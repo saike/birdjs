@@ -2,7 +2,11 @@ exports.scenes = [];
 
 exports.globalObjectList = [];
 
+exports.prefabs = [];
+
 exports.clients = [];
+
+exports.trash = [];
 
 ///Games list
 
@@ -61,6 +65,7 @@ exports.removeClient = function(address){
         }
     }
     exports.clients.splice(exports.clients.indexOf(c), 1);
+    delete c;
 
 }
 

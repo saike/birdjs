@@ -10,7 +10,7 @@ exports.index = function(req, res){
 };
 
 /*
- * GET home page.
+ * GET game page.
  */
 
 exports.game = function(req, res){

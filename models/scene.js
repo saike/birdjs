@@ -1,5 +1,6 @@
 //imports
 var Object = require('./object');
+var bge = require('../logic/bge');
 
 function getCollision(obj, colObj){
 
@@ -148,9 +149,9 @@ function displacementObj(obj, colObj){
 }
 
 //CLASS SCENE
-var Scene = module.exports = function(name, width, height){
+var Scene = module.exports = function(name, game, width, height){
 
-
+    this.game = game;
     this.name = name;
     this.width = width;
     this.height = height;
@@ -164,6 +165,15 @@ var Scene = module.exports = function(name, width, height){
 
         });
 
+    };
+    this.getCurrentGame = function(){
+
+        var gameName = this.game;
+        bge.games.forEach(function(game){
+
+            if(game.name == gameName){return game}
+
+        });
     };
     this.getCollisions = function(){
         var scene = this;
@@ -223,6 +233,7 @@ var Scene = module.exports = function(name, width, height){
                 collisions.forEach(function (collision) {
 
                     displacementObj(collision[0], collision[1]);
+
                 });
 
             }
@@ -232,15 +243,147 @@ var Scene = module.exports = function(name, width, height){
         this.objects.forEach(function(object){
 
             object.reset();
+            if(object.x<0 || object.x>scene.width || object.y < 0 || object.y > scene.height){scene.removeObject(object)}
 
         });
+        bge.trash.forEach(function(garbage){
+
+            var objects = scene.objects;
+            if(objects.indexOf(garbage) >= 0){
+                console.log("Object removed:  " + garbage.name );
+                garbage.controllers = null;
+                objects.splice(objects.indexOf(garbage), 1);
+                bge.globalObjectList.splice(bge.globalObjectList.indexOf(garbage), 1);
+            }
+
+        });
+        bge.trash = [];
     };
 
     this.addObject = function(name, type, position, size, layer){
 
         var obj = new Object(name, type, position, size, layer);
+        obj.scene = this.name;
+        obj.game = this.game;
         this.objects.push(obj);
         return obj;
+    };
+    this.getObjects = function(name){
+
+        var objects = this.objects;
+        var objList = [];
+        objects.forEach(function(object){
+
+            if(object.name.indexOf(name)>=0){
+
+                objList.push(object);
+
+            }
+
+        });
+        return objList;
+    };
+    this.addGlobalObject = function(name){
+
+        var go = false;
+        bge.globalObjectList.forEach(function(object){
+
+            if(object.name == name){
+
+                go = object;
+
+            }
+
+        });
+        if(go){
+            var clone = this.cloneObject(go);
+            clone.scene = this.name;
+            clone.game = this.game;
+            return clone;
+        }
+        return go;
+    };
+    this.addPrefab = function(name){
+
+        var go = false;
+        bge.prefabs.forEach(function(object){
+
+            if(object.name == name){
+
+                go = object;
+
+            }
+
+        });
+        if(go){
+            var clone = this.cloneObject(go);
+            clone.scene = this.name;
+            clone.game = this.game;
+            console.log("prefab: "+ clone.name +"  " + clone.game + "  " + clone.scene + "  " + clone.controllers);
+            return clone;
+        }
+
+    };
+    this.removeObject = function(object){
+        var objects = this.objects;
+        if(objects.indexOf(object) >= 0){
+            console.log("Object removed:  " + object.name );
+            object.controllers = null;
+            objects.splice(objects.indexOf(object), 1);
+            bge.globalObjectList.splice(bge.globalObjectList.indexOf(object), 1);
+        }
+
+    };
+    this.removeObjects = function(name){
+
+        var objects = this.objects;
+        objects.forEach(function(object){
+
+            if(object.name == name){
+                objects.splice(objects.indexOf(object), 1);
+                bge.globalObjectList.splice(bge.globalObjectList.indexOf(object), 1);
+
+            }
+
+        });
+
+    };
+    this.cloneObject = function(o){
+
+        var p,r = {};
+        for (p in o)
+        {//Needs a lot more work, just a basic example of a recursive copy function
+            switch(true)
+            {
+                case o[p] instanceof Function:
+                    r[p] = o[p];
+                    break;
+                case o[p] instanceof Date:
+                    r[p] = new Date(o[p]);
+                    break;
+                case o === o[p]:
+                    //simple circular references only
+                    //a.some.child.object.references = a; will still cause trouble
+                    r[p] = r;
+                    break;
+                case o[p] instanceof Array:
+                    r[p] = o[p].slice(0);//copy arrays
+                    break;
+                default:
+                    r[p] = o[p] instanceof Object ? cloneObject(o[p]) : o[p];
+            }
+        }
+        r.controllers.forEach(function(controller){
+
+            controller.owner = r;
+            controller.sensors.forEach(function(sensor){ sensor.owner = r; });
+            controller.actuators.forEach(function(actuator){ actuator.owner = r; });
+        });
+
+        this.objects.push(r);
+        console.log("cloned object: " + r.game + "  " + r.scene + "  " + r.controllers);
+        return r;
+
     };
 
 }
