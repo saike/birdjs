@@ -274,7 +274,7 @@ var Scene = module.exports = function(name, game, width, height){
         var objList = [];
         objects.forEach(function(object){
 
-            if(object.name.indexOf(name)>=0){
+            if(object.name && object.name.indexOf(name)>=0){
 
                 objList.push(object);
 
