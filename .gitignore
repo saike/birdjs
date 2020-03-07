@@ -1,17 +1,27 @@
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
+.DS_Store
+node_modules
+dist
+temp
 
-pids
-logs
-results
+## local test files
+tests/e2e/local/vars.json
+tests/e2e/local/storage.json
+tests/e2e/videos/*
+tests/e2e/screenshots/*
 
-npm-debug.log
-
-node_modules/
+# local env files
+*local*
+.env.development
 package-lock.json
+
+# Log files
+*.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
