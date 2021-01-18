@@ -389,7 +389,7 @@ function updateClients() {
   for(var s_id in io.sockets.connected){
 
     var socket = io.sockets.connected[s_id];
-    
+
     var updateClient = false;
     var updateCamera = false;
     var renderObjects = [];
